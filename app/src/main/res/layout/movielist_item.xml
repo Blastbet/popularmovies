@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/poster_list_text_height"
+        android:text="The Movie Title"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:id="@+id/list_poster_title"/>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/list_poster_image"
+        android:background="@color/colorAccent"/>
+
+</LinearLayout>
