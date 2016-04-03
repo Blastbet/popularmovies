@@ -67,7 +67,7 @@ public class MovieAdapter extends BaseAdapter {
             LayoutInflater inflater = ((Activity) mContext).getLayoutInflater();
             convertView = inflater.inflate(mResourceId, parent, false);
 
-            convertView.setClickable(true);
+//            convertView.setClickable(true);
 
             final ImageView imageView = (ImageView) convertView.findViewById(R.id.list_poster_image);
             final View loader = convertView.findViewById(R.id.list_poster_image_progress);
@@ -100,13 +100,13 @@ public class MovieAdapter extends BaseAdapter {
             holder = (ImageHolder) convertView.getTag();
         }
 
-        convertView.setOnClickListener(new View.OnClickListener() {
+/*        convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(mContext, "Clicked on movie \"" + movie.getName() + "\"", Toast.LENGTH_SHORT).show();
             }
         });
-
+*/
         holder.imageView.setVisibility(View.GONE);
         holder.loader.setVisibility(View.VISIBLE);
 

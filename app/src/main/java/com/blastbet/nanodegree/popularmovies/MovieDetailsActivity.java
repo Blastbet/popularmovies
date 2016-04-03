@@ -1,19 +1,24 @@
 package com.blastbet.nanodegree.popularmovies;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class MovieListActivity extends AppCompatActivity implements MovieListFragment.MovieListCallback {
+public class MovieDetailsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_movie_list);
+        setContentView(R.layout.activity_movie_details);
+        final Movie movie = getIntent().getParcelableExtra(getString(R.string.movie_extra));
+        MovieDetailsFragment fragment = MovieDetailsFragment.newInstance(movie);
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.movie_details_container, fragment)
+                    .commit();
+        }
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
     }
@@ -21,7 +26,7 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_movielist, menu);
+        getMenuInflater().inflate(R.menu.menu_moviedetails, menu);
         return true;
     }
 
@@ -38,20 +43,5 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    public void onMovieSelectedListener(Movie movie) {
-
-        MovieDetailsFragment detailsFragment =
-                (MovieDetailsFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_movie_details);
-
-        Log.v("MovieListActivity", "onMovieSelectedListener, movie:" + movie.getName());
-        if (detailsFragment == null) {
-            // Small display, phone e.g.
-            Intent detailsIntent = new Intent(this, MovieDetailsActivity.class);
-            detailsIntent.putExtra(getString(R.string.movie_extra), movie);
-            startActivity(detailsIntent);
-        }
-
     }
 }

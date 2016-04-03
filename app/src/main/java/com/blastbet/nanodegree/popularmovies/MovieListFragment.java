@@ -1,14 +1,16 @@
 package com.blastbet.nanodegree.popularmovies;
 
+import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
+import android.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.GridView;
 
 import org.json.JSONArray;
@@ -20,7 +22,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -35,6 +36,12 @@ public class MovieListFragment extends Fragment {
     private MovieAdapter mAdapter = null;
     private FetchTask mTask = null;
     private final String API_KEY_PARAM = "api_key";
+
+    private MovieListCallback mCallback;
+
+    public interface MovieListCallback {
+        void onMovieSelectedListener(Movie movie);
+    }
 
     public MovieListFragment() {
     }
@@ -57,7 +64,35 @@ public class MovieListFragment extends Fragment {
         GridView movieGrid = (GridView)rootView.findViewById(R.id.grid_movies);
         mAdapter = new MovieAdapter(getActivity(), R.layout.movielist_item, null);
         movieGrid.setAdapter(mAdapter);
+
+        movieGrid.setClickable(true);
+        movieGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                onMovieSelectedListener(position);
+            }
+        });
+
         return rootView;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        try {
+            mCallback = (MovieListCallback) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString()
+                + " must implement MovieListCallbacks");
+        }
+    }
+
+    private void onMovieSelectedListener(int position) {
+        Log.v("MovieListFragment", "onMovieSelectedListener (pos: " + position + "), movie:" + mAdapter.getItem(position));
+
+        Movie movie = (Movie) mAdapter.getItem(position);
+        mCallback.onMovieSelectedListener(movie);
     }
 
     private class FetchTask extends AsyncTask<String, Void, Movie[]> {

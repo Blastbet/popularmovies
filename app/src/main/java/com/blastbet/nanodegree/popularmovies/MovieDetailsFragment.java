@@ -1,12 +1,16 @@
 package com.blastbet.nanodegree.popularmovies;
 
 import android.content.Context;
-import android.net.Uri;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 
 /**
@@ -23,7 +27,12 @@ public class MovieDetailsFragment extends Fragment {
 
     private Movie mMovie;
 
-    private OnFragmentInteractionListener mListener;
+    private TextView mTitleView = null;
+    private TextView mReleaseDateView = null;
+    private TextView mOverviewView = null;
+    private TextView mRuntimeView = null;
+    private TextView mRatingView = null;
+    private ImageView mPosterView = null;
 
     public MovieDetailsFragment() {
         // Required empty public constructor
@@ -33,11 +42,9 @@ public class MovieDetailsFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
+     * @param movie Movie details to show.
      * @return A new instance of fragment MovieDetailsFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static MovieDetailsFragment newInstance(Movie movie) {
         MovieDetailsFragment fragment = new MovieDetailsFragment();
         Bundle args = new Bundle();
@@ -58,44 +65,46 @@ public class MovieDetailsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_movie_details, container, false);
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-/*    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
+        View rootView = inflater.inflate(R.layout.fragment_movie_details, container, false);
+        final Movie movie = getActivity().getIntent().getParcelableExtra(getString(R.string.movie_extra));
+        if (movie != null) {
+            mMovie = movie;
         }
-    }*/
+
+        mTitleView = (TextView) rootView.findViewById(R.id.text_movie_detail_title);
+        mOverviewView = (TextView) rootView.findViewById(R.id.text_movie_detail_description);
+        mReleaseDateView = (TextView) rootView.findViewById(R.id.text_movie_detail_production_year);
+        mRuntimeView = (TextView) rootView.findViewById(R.id.text_movie_detail_run_length);
+        mRatingView = (TextView) rootView.findViewById(R.id.text_movie_detail_rating);
+        mPosterView = (ImageView) rootView.findViewById(R.id.image_movie_detail_poster);
+
+        if (mMovie == null)
+        {
+            mTitleView.setText("---");
+            mOverviewView.setText("---");
+            mReleaseDateView.setText("---");
+            mRuntimeView.setText("---");
+            mRatingView.setText("---");
+            mPosterView.setBackgroundColor(Color.GRAY);
+        } else {
+            mTitleView.setText(movie.getName());
+            mOverviewView.setText(movie.getOverview());
+            mReleaseDateView.setText(movie.getReleaseDate().toString());
+            mRuntimeView.setText(movie.getRuntime());
+            mRatingView.setText(movie.getRating().toString());
+            Picasso.with(getActivity()).load(movie.getPosterImage())
+                    .into(mPosterView);
+        }
+        return rootView;
+    }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        void onMovieSelectionChanged(Movie movie);
     }
 }

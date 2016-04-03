@@ -10,6 +10,7 @@
         android:layout_height="wrap_content"
         android:text="@string/hello_blank_fragment"
         android:textSize="46sp"
+        android:id="@+id/text_movie_detail_title"
         android:gravity="center_vertical"
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:background="@color/material_deep_teal_500"

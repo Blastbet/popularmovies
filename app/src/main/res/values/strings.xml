@@ -1,8 +1,10 @@
 <resources>
-    <string name="app_name">Popular Movies</string>
+    <string name="app_name">Pop Movies</string>
+    <string name="movie_details">MovieDetail</string>
     <string name="action_settings">Settings</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="mark_as_favorite">Mark as favorite</string>
+    <string name="movie_extra">MOVIE_EXTRA</string>
 </resources>

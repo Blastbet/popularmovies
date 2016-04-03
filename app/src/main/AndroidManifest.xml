@@ -19,6 +19,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".MovieDetailsActivity"
+            android:label="@string/movie_details"
+            android:screenOrientation="portrait"
+            android:parentActivityName=".MovieListActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.blastbet.nanodegree.popularmovies.MovieListActivity"/>
+        </activity>
     </application>
 
     <uses-permission android:name="android.permission.INTERNET"/>
