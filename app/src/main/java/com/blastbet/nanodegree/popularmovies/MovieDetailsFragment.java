@@ -12,6 +12,8 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import java.text.SimpleDateFormat;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -33,6 +35,8 @@ public class MovieDetailsFragment extends Fragment {
     private TextView mRuntimeView = null;
     private TextView mRatingView = null;
     private ImageView mPosterView = null;
+
+    private SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyy");
 
     public MovieDetailsFragment() {
         // Required empty public constructor
@@ -89,7 +93,8 @@ public class MovieDetailsFragment extends Fragment {
         } else {
             mTitleView.setText(movie.getName());
             mOverviewView.setText(movie.getOverview());
-            mReleaseDateView.setText(movie.getReleaseDate().toString());
+            final String releaseDate = mDateFormat.format(movie.getReleaseDate()).toString();
+            mReleaseDateView.setText(releaseDate);
             mRuntimeView.setText(movie.getRuntime());
             mRatingView.setText(movie.getRating().toString());
             Picasso.with(getActivity()).load(movie.getPosterImage())
