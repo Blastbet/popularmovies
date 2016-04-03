@@ -1,8 +1,10 @@
 package com.blastbet.nanodegree.popularmovies;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -35,7 +37,10 @@ public class MovieListFragment extends Fragment {
 
     private MovieAdapter mAdapter = null;
     private FetchTask mTask = null;
+
     private final String API_KEY_PARAM = "api_key";
+    private final String IMAGE_PATH = "http://image.tmdb.org/t/p/w185/";
+    private String mSortKey = null;
 
     private MovieListCallback mCallback;
 
@@ -53,8 +58,11 @@ public class MovieListFragment extends Fragment {
         // Retain the fragment through configuration changes.
         setRetainInstance(true);
 
+        mSortKey = PreferenceManager.getDefaultSharedPreferences(getActivity())
+                .getString(getString(R.string.pref_sort_by_key), getString(R.string.pref_sort_by_default));
+
         mTask = new FetchTask();
-        mTask.execute("popular", "http://image.tmdb.org/t/p/w185/");
+        mTask.execute(mSortKey, IMAGE_PATH);
     }
 
     @Override
@@ -74,6 +82,26 @@ public class MovieListFragment extends Fragment {
         });
 
         return rootView;
+    }
+
+    private void updateSortOrder() {
+        final String sortKey = PreferenceManager.getDefaultSharedPreferences(getActivity())
+                .getString(getString(R.string.pref_sort_by_key), getString(R.string.pref_sort_by_default));
+
+        if (sortKey != mSortKey)
+        {
+            mSortKey = sortKey;
+            if (mTask == null || mTask.getStatus() == AsyncTask.Status.FINISHED || mTask.cancel(true)) {
+                mTask = new FetchTask();
+                mTask.execute(sortKey, IMAGE_PATH);
+            }
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateSortOrder();
     }
 
     @Override

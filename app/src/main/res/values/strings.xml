@@ -7,4 +7,25 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="mark_as_favorite">Mark as favorite</string>
     <string name="movie_extra">MOVIE_EXTRA</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Strings related to Settings -->
+
+    <!-- General settings -->
+
+    <!-- Sort order -->
+    <string name="pref_sort_by_label">Sort Movies By</string>
+    <string name="pref_sort_by_key" translatable="false">sort_movies_by</string>
+    <string name="pref_sort_by_default" translatable="false">popular</string>
+    <string-array name="pref_sort_by">
+        <item>Popularity</item>
+        <item>Top Rated</item>
+    </string-array>
+    <string-array name="pref_sort_by_values">
+        <item>popular</item>
+        <item>top_rated</item>
+    </string-array>
+
+    <string name="pref_header_general">General</string>
+
 </resources>

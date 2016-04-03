@@ -34,6 +34,8 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent settings = new Intent(this, SettingsActivity.class);
+            startActivity(settings);
             return true;
         }
 
