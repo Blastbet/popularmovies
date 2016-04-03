@@ -67,13 +67,15 @@ public class MovieAdapter extends BaseAdapter {
             LayoutInflater inflater = ((Activity) mContext).getLayoutInflater();
             convertView = inflater.inflate(mResourceId, parent, false);
 
-//            convertView.setClickable(true);
-
             final ImageView imageView = (ImageView) convertView.findViewById(R.id.list_poster_image);
             final View loader = convertView.findViewById(R.id.list_poster_image_progress);
 
             holder.imageView = imageView;
             holder.loader = loader;
+
+            /** Target for picasso, that handles showing "loading" animation when images are being
+             *  downloaded.
+             */
             holder.target = new Target() {
                 @Override
                 public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
@@ -100,16 +102,10 @@ public class MovieAdapter extends BaseAdapter {
             holder = (ImageHolder) convertView.getTag();
         }
 
-/*        convertView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(mContext, "Clicked on movie \"" + movie.getName() + "\"", Toast.LENGTH_SHORT).show();
-            }
-        });
-*/
         holder.imageView.setVisibility(View.GONE);
         holder.loader.setVisibility(View.VISIBLE);
 
+        /** Scale the images to fit evenly on and fill the whole screen */
         int columnWidth = ((GridView)parent).getColumnWidth();
         Picasso.with(mContext)
                 .load(movie.getPosterImage())

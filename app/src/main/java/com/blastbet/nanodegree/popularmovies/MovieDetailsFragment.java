@@ -84,6 +84,7 @@ public class MovieDetailsFragment extends Fragment {
 
         if (mMovie == null)
         {
+            /** Set dummy data if we for some reason did not have the movie details here */
             mTitleView.setText("---");
             mOverviewView.setText("---");
             mReleaseDateView.setText("---");
@@ -91,12 +92,16 @@ public class MovieDetailsFragment extends Fragment {
             mRatingView.setText("---");
             mPosterView.setBackgroundColor(Color.GRAY);
         } else {
+            /** Populate the view with the movie details */
             mTitleView.setText(movie.getName());
             mOverviewView.setText(movie.getOverview());
             final String releaseDate = mDateFormat.format(movie.getReleaseDate()).toString();
             mReleaseDateView.setText(releaseDate);
             mRuntimeView.setText(movie.getRuntime());
             mRatingView.setText(movie.getRating().toString());
+            /** Use picasso to download the movie poster and also to fit the image into the
+             * imageview provided
+             */
             Picasso.with(getActivity()).load(movie.getPosterImage())
                     .fit()
                     .into(mPosterView);

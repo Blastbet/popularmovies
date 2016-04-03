@@ -30,9 +30,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-/**
- * A placeholder fragment containing a simple view.
- */
 public class MovieListFragment extends Fragment {
 
     private MovieAdapter mAdapter = null;
@@ -84,6 +81,9 @@ public class MovieListFragment extends Fragment {
         return rootView;
     }
 
+    /**
+     * Updates the movie listing in case the sort order has been changed.
+     */
     private void updateSortOrder() {
         final String sortKey = PreferenceManager.getDefaultSharedPreferences(getActivity())
                 .getString(getString(R.string.pref_sort_by_key), getString(R.string.pref_sort_by_default));
@@ -101,6 +101,7 @@ public class MovieListFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        /** Check the sort order when ever resuming */
         updateSortOrder();
     }
 
@@ -117,7 +118,7 @@ public class MovieListFragment extends Fragment {
     }
 
     private void onMovieSelectedListener(int position) {
-        Log.v("MovieListFragment", "onMovieSelectedListener (pos: " + position + "), movie:" + mAdapter.getItem(position));
+        //Log.v("MovieListFragment", "onMovieSelectedListener (pos: " + position + "), movie:" + mAdapter.getItem(position));
 
         Movie movie = (Movie) mAdapter.getItem(position);
         mCallback.onMovieSelectedListener(movie);
@@ -152,6 +153,7 @@ public class MovieListFragment extends Fragment {
             return movies;
         }
 
+        /** Fetches the list of movies using the sort (queryParam) key provided */
         private Movie[] fetchMovieList(String queryParam, String posterBasePath) {
             String movieJsonString = null;
             final String MOVIEDB_BASE_URL = "http://api.themoviedb.org/3/movie";
@@ -171,6 +173,7 @@ public class MovieListFragment extends Fragment {
             return null;
         }
 
+        /** Fetches a detail information for a specific movie, matching the movieId. */
         private String fetchMovieDetail(String movieId, String param) {
             String movieJsonString = null;
             final String MOVIEDB_BASE_URL = "http://api.themoviedb.org/3/movie";
@@ -191,6 +194,7 @@ public class MovieListFragment extends Fragment {
             return null;
         }
 
+        /** Runs an HTTP GET operation on the URI provided and returns the received string */
         private String doHttpGet(Uri uri) {
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
@@ -238,6 +242,7 @@ public class MovieListFragment extends Fragment {
             return receivedString;
         }
 
+        /** Parses a movie listing JSON */
         Movie[] parseMovieJson(String movieJsonString, String posterBasePath) throws JSONException {
 
             if (movieJsonString == null) {
@@ -289,7 +294,7 @@ public class MovieListFragment extends Fragment {
 
         @Override
         protected void onPostExecute(Movie[] movies) {
-            Log.v("FetchMovies","New movies fetched");
+            //Log.v("FetchMovies","New movies fetched");
             mAdapter.setNewMovies(movies);
         }
     }

@@ -192,7 +192,7 @@ public class Movie implements Parcelable {
         /** Override toString */
         @Override
         public String toString() {
-            return averageVote + "/10 (" + voteCount + " votes)";
+            return averageVote + "/10\n(" + voteCount + " votes)";
         }
     }
 }

@@ -42,6 +42,10 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Handler for clicks on the movie posters. Brings up the detail view for the movie
+     * @param movie The movie data to show.
+     */
     public void onMovieSelectedListener(Movie movie) {
 
         MovieDetailsFragment detailsFragment =
@@ -53,6 +57,10 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
             Intent detailsIntent = new Intent(this, MovieDetailsActivity.class);
             detailsIntent.putExtra(getString(R.string.movie_extra), movie);
             startActivity(detailsIntent);
+        }
+        else
+        {
+            Log.e("MovieListActivity", "Tablet layout for detailed view is not yet implemented!");
         }
 
     }
