@@ -15,23 +15,26 @@ public class Movie implements Parcelable {
     protected String id;
     protected String name;
     protected String overview;
+    protected String runtime;
     protected Date releaseDate;
     protected Rating rating;
 
-    public Movie(Uri posterImage, String id, String name, String overview, Date releaseDate, Rating rating) {
+    public Movie(Uri posterImage, String id, String name, String overview, String runtime, Date releaseDate, Rating rating) {
         this.posterImage = posterImage;
         this.id = id;
         this.name = name;
         this.overview = overview;
+        this.runtime = runtime;
         this.releaseDate = releaseDate;
         this.rating = rating;
     }
 
-    public Movie(Uri posterImage, String id, String name, String overview, Date releaseDate, String averageVote, String voteCount) {
+    public Movie(Uri posterImage, String id, String name, String overview, String runtime, Date releaseDate, String averageVote, String voteCount) {
         this.posterImage = posterImage;
         this.id = id;
         this.name = name;
         this.overview = overview;
+        this.runtime = runtime;
         this.releaseDate = releaseDate;
         this.rating = new Rating(averageVote, voteCount);
     }
@@ -42,6 +45,7 @@ public class Movie implements Parcelable {
         this.id = in.readString();
         this.name = in.readString();
         this.overview = in.readString();
+        this.runtime = in.readString();
         this.releaseDate = new Date(in.readLong());
         this.rating = in.readParcelable(Rating.class.getClassLoader());
     }
@@ -52,6 +56,7 @@ public class Movie implements Parcelable {
         dest.writeString(id);
         dest.writeString(name);
         dest.writeString(overview);
+        dest.writeString(runtime);
         dest.writeLong(releaseDate.getTime());
         dest.writeParcelable(rating, flags);
     }
@@ -104,6 +109,14 @@ public class Movie implements Parcelable {
 
     public void setOverview(String overview) {
         this.overview = overview;
+    }
+
+    public String getRuntime() {
+        return runtime;
+    }
+
+    public void setRuntime(String runtime) {
+        this.runtime = runtime;
     }
 
     public Date getReleaseDate() {

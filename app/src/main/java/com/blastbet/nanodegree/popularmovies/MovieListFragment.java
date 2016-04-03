@@ -4,7 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.annotation.Nullable;
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -109,21 +109,67 @@ public class MovieListFragment extends Fragment {
             final String queryPath = params[0];
             final String posterBasePath = params[1];
 
-            HttpURLConnection urlConnection = null;
-            BufferedReader reader = null;
+            Movie[] movies = fetchMovieList(queryPath, posterBasePath);
 
+            if (movies == null) {
+                return null;
+            }
+
+            for (int i = 0; i < movies.length; i++)
+            {
+                String runTime = fetchMovieDetail(movies[i].getId(), "runtime");
+                movies[i].setRuntime(runTime);
+            }
+
+            return movies;
+        }
+
+        private Movie[] fetchMovieList(String queryParam, String posterBasePath) {
             String movieJsonString = null;
+            final String MOVIEDB_BASE_URL = "http://api.themoviedb.org/3/movie";
+
+            Uri builtUri = Uri.parse(MOVIEDB_BASE_URL).buildUpon()
+                    .appendPath(queryParam)
+                    .appendQueryParameter(API_KEY_PARAM, BuildConfig.THEMOVIEDB_API_KEY)
+                    .build();
+
+            movieJsonString = doHttpGet(builtUri);
 
             try {
-                final String MOVIEDB_BASE_URL = "http://api.themoviedb.org/3/movie";
+                return parseMovieJson(movieJsonString, posterBasePath);
+            } catch (JSONException e) {
+                Log.e(LOG_TAG, "Movie Json parsing failed! ", e);
+            }
+            return null;
+        }
 
-                Uri builtUri = Uri.parse(MOVIEDB_BASE_URL).buildUpon()
-                        .appendPath(queryPath)
-                        .appendQueryParameter(API_KEY_PARAM, BuildConfig.THEMOVIEDB_API_KEY)
-                        .build();
+        private String fetchMovieDetail(String movieId, String param) {
+            String movieJsonString = null;
+            final String MOVIEDB_BASE_URL = "http://api.themoviedb.org/3/movie";
 
-                URL url = new URL(builtUri.toString());
+            Uri builtUri = Uri.parse(MOVIEDB_BASE_URL).buildUpon()
+                    .appendPath(movieId)
+                    .appendQueryParameter(API_KEY_PARAM, BuildConfig.THEMOVIEDB_API_KEY)
+                    .build();
 
+            movieJsonString = doHttpGet(builtUri);
+
+            try {
+                JSONObject root = new JSONObject((movieJsonString));
+                return root.getString(param);
+            } catch (JSONException e) {
+                Log.e(LOG_TAG, "Movie details Json parsing failed! ", e);
+            }
+            return null;
+        }
+
+        private String doHttpGet(Uri uri) {
+            HttpURLConnection urlConnection = null;
+            BufferedReader reader = null;
+            String receivedString = null;
+
+            try {
+                URL url = new URL(uri.toString());
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.connect();
@@ -145,9 +191,8 @@ public class MovieListFragment extends Fragment {
                     return null;
                 }
 
-                movieJsonString = buffer.toString();
+                receivedString = buffer.toString();
 
-                Log.v(LOG_TAG, "Queried for " + queryPath + " movies. Received Json: " + movieJsonString);
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Error ", e);
             } finally {
@@ -162,13 +207,7 @@ public class MovieListFragment extends Fragment {
                     }
                 }
             }
-
-            try {
-                return parseMovieJson(movieJsonString, posterBasePath);
-            } catch (JSONException e) {
-                Log.e(LOG_TAG, "Movie Json parsing failed! ", e);
-            }
-            return null;
+            return receivedString;
         }
 
         Movie[] parseMovieJson(String movieJsonString, String posterBasePath) throws JSONException {
@@ -214,7 +253,7 @@ public class MovieListFragment extends Fragment {
                 Uri posterUri = Uri.parse(posterPath).buildUpon()
                         .appendQueryParameter(API_KEY_PARAM, BuildConfig.THEMOVIEDB_API_KEY)
                         .build();
-                Movie movie = new Movie(posterUri, id, title, overView, releaseDate, vote, voteCount);
+                Movie movie = new Movie(posterUri, id, title, overView, null, releaseDate, vote, voteCount);
                 movies[i] = movie;
             }
             return movies;
