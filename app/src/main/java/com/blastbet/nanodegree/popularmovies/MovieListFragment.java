@@ -146,7 +146,7 @@ public class MovieListFragment extends Fragment {
             for (int i = 0; i < movies.length; i++)
             {
                 String runTime = fetchMovieDetail(movies[i].getId(), "runtime");
-                movies[i].setRuntime(runTime);
+                movies[i].setRuntime(runTime + "min");
             }
 
             return movies;
