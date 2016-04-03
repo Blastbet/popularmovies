@@ -32,30 +32,10 @@ import java.util.Date;
  */
 public class MovieListFragment extends Fragment {
 
-    MovieAdapter mAdapter = null;
-
+    private MovieAdapter mAdapter = null;
     private FetchTask mTask = null;
+    private final String API_KEY_PARAM = "api_key";
 
-    /** Dummy data */
-/*    private static final Movie movie1 = new Movie(Uri.EMPTY, "Movie 1", "joo joo", new Date(20000000), "en", "1.0", 1);
-    private static final Movie movie2 = new Movie(Uri.EMPTY, "Movie 2", "joo joo", new Date(20000000), "en", "1.0", 1);
-    private static final Movie movie3 = new Movie(Uri.EMPTY, "Movie 3", "joo joo", new Date(20000000), "en", "1.0", 1);
-    private static final Movie movie4 = new Movie(Uri.EMPTY, "Movie 4", "joo joo", new Date(20000000), "en", "1.0", 1);
-    private static final Movie movie5 = new Movie(Uri.EMPTY, "Movie 5", "joo joo", new Date(20000000), "en", "1.0", 1);
-    private static final Movie movie6 = new Movie(Uri.EMPTY, "Movie 6", "joo joo", new Date(20000000), "en", "1.0", 1);
-    private static final Movie movie7 = new Movie(Uri.EMPTY, "Movie 7", "joo joo", new Date(20000000), "en", "1.0", 1);
-    private static final Movie movies[] = {movie1, movie2, movie3, movie4, movie5, movie6, movie7};
-
-    interface DataFetchCallbacks {
-        void onPreExecute();
-        void onProgressUpdate(int percent);
-        void onCancelled();
-        void onPostExecute();
-    }
-
-    private DataFetchCallbacks mCallbacks;
-    private FetchTask mTask;
-*/
     public MovieListFragment() {
     }
 
@@ -101,7 +81,6 @@ public class MovieListFragment extends Fragment {
 
             try {
                 final String MOVIEDB_BASE_URL = "http://api.themoviedb.org/3/movie";
-                final String API_KEY_PARAM = "api_key";
 
                 Uri builtUri = Uri.parse(MOVIEDB_BASE_URL).buildUpon()
                         .appendPath(queryPath)
@@ -152,12 +131,16 @@ public class MovieListFragment extends Fragment {
             try {
                 return parseMovieJson(movieJsonString, posterBasePath);
             } catch (JSONException e) {
-                e.printStackTrace();
+                Log.e(LOG_TAG, "Movie Json parsing failed! ", e);
             }
             return null;
         }
 
         Movie[] parseMovieJson(String movieJsonString, String posterBasePath) throws JSONException {
+
+            if (movieJsonString == null) {
+                return null;
+            }
 
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             Calendar calendar = Calendar.getInstance();
@@ -193,7 +176,10 @@ public class MovieListFragment extends Fragment {
                 String title = movieJson.getString(MDB_TITLE);
                 String voteCount = movieJson.getString(MDB_VOTE_COUNT);
                 String vote = movieJson.getString(MDB_VOTE_AVG);
-                Movie movie = new Movie(Uri.parse(posterPath), id, title, overView, releaseDate, vote, voteCount);
+                Uri posterUri = Uri.parse(posterPath).buildUpon()
+                        .appendQueryParameter(API_KEY_PARAM, BuildConfig.THEMOVIEDB_API_KEY)
+                        .build();
+                Movie movie = new Movie(posterUri, id, title, overView, releaseDate, vote, voteCount);
                 movies[i] = movie;
             }
             return movies;
@@ -201,6 +187,7 @@ public class MovieListFragment extends Fragment {
 
         @Override
         protected void onPostExecute(Movie[] movies) {
+            Log.v("FetchMovies","New movies fetched");
             mAdapter.setNewMovies(movies);
         }
     }

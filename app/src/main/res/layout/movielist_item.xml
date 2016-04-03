@@ -5,16 +5,22 @@
     android:id="@+id/list_item"
     android:clickable="true">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/list_poster_title"/>
-
-    <!--
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/list_poster_image"
-        android:background="@color/colorAccent"/>
-    -->
+        android:id="@+id/list_poster_image"/>
+
+    <RelativeLayout
+        android:id="@+id/list_poster_image_progress"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center">
+
+        <ProgressBar
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="20dp"
+            android:indeterminate="true"/>
+
+    </RelativeLayout>
 </FrameLayout>
