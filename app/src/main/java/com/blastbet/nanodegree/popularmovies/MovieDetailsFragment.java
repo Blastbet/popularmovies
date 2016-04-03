@@ -98,6 +98,7 @@ public class MovieDetailsFragment extends Fragment {
             mRuntimeView.setText(movie.getRuntime());
             mRatingView.setText(movie.getRating().toString());
             Picasso.with(getActivity()).load(movie.getPosterImage())
+                    .fit()
                     .into(mPosterView);
         }
         return rootView;
