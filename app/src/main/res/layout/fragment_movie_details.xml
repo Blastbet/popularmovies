@@ -51,7 +51,8 @@
                 android:layout_height="@dimen/movie_detail_info_field_height"
                 android:id="@+id/text_movie_detail_production_year"
                 android:text="2000"
-                android:textIsSelectable="true" />
+                android:textIsSelectable="true"
+                android:textSize="32sp" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/movie_detail_info_field_height"
@@ -64,12 +65,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/movie_detail_info_field_height"
                 android:id="@+id/text_movie_detail_rating"
-                android:text="9.9/10"/>
+                android:text="9.9/10"
+                android:textSize="24sp" />
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/movie_detail_info_field_height"
                 android:text="@string/mark_as_favorite"
-                android:capitalize="characters"/>
+                android:capitalize="characters"
+                android:visibility="gone" />
 
         </LinearLayout>
     </LinearLayout>
