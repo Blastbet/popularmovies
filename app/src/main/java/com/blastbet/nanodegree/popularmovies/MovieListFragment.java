@@ -33,9 +33,8 @@ import java.util.Date;
 public class MovieListFragment extends Fragment {
 
     private MovieAdapter mAdapter = null;
-    private FetchTask mTask = null;
+    private MovieFetchTask mTask = null;
 
-    private final String API_KEY_PARAM = "api_key";
     private final String IMAGE_PATH = "http://image.tmdb.org/t/p/w185/";
     private String mSortKey = null;
 
@@ -58,8 +57,7 @@ public class MovieListFragment extends Fragment {
         mSortKey = PreferenceManager.getDefaultSharedPreferences(getActivity())
                 .getString(getString(R.string.pref_sort_by_key), getString(R.string.pref_sort_by_default));
 
-        mTask = new FetchTask();
-        mTask.execute(mSortKey, IMAGE_PATH);
+        fetchMovies(mSortKey);
     }
 
     @Override
@@ -91,10 +89,20 @@ public class MovieListFragment extends Fragment {
         if (sortKey != mSortKey)
         {
             mSortKey = sortKey;
-            if (mTask == null || mTask.getStatus() == AsyncTask.Status.FINISHED || mTask.cancel(true)) {
-                mTask = new FetchTask();
-                mTask.execute(sortKey, IMAGE_PATH);
-            }
+            fetchMovies(sortKey);
+        }
+    }
+
+    private void fetchMovies(String sortKey) {
+        if (mTask == null || mTask.getStatus() == AsyncTask.Status.FINISHED || mTask.cancel(true)) {
+            mTask = new MovieFetchTask();
+            mTask.setOnNewMoviesFetchedListener(new MovieFetchTask.OnNewMoviesFetchedListener() {
+                @Override
+                public void onNewMoviesFetched(Movie... newMovies) {
+                    mAdapter.setNewMovies(newMovies);
+                }
+            });
+            mTask.execute(sortKey, IMAGE_PATH);
         }
     }
 
@@ -124,178 +132,4 @@ public class MovieListFragment extends Fragment {
         mCallback.onMovieSelectedListener(movie);
     }
 
-    private class FetchTask extends AsyncTask<String, Void, Movie[]> {
-
-        private final String LOG_TAG = FetchTask.class.getSimpleName();
-
-        @Override
-        protected Movie[] doInBackground(String... params) {
-
-            if (params == null || params.length < 2) {
-                return null;
-            }
-
-            final String queryPath = params[0];
-            final String posterBasePath = params[1];
-
-            Movie[] movies = fetchMovieList(queryPath, posterBasePath);
-
-            if (movies == null) {
-                return null;
-            }
-
-            for (int i = 0; i < movies.length; i++)
-            {
-                String runTime = fetchMovieDetail(movies[i].getId(), "runtime");
-                movies[i].setRuntime(runTime + "min");
-            }
-
-            return movies;
-        }
-
-        /** Fetches the list of movies using the sort (queryParam) key provided */
-        private Movie[] fetchMovieList(String queryParam, String posterBasePath) {
-            String movieJsonString = null;
-            final String MOVIEDB_BASE_URL = "http://api.themoviedb.org/3/movie";
-
-            Uri builtUri = Uri.parse(MOVIEDB_BASE_URL).buildUpon()
-                    .appendPath(queryParam)
-                    .appendQueryParameter(API_KEY_PARAM, BuildConfig.THEMOVIEDB_API_KEY)
-                    .build();
-
-            movieJsonString = doHttpGet(builtUri);
-
-            try {
-                return parseMovieJson(movieJsonString, posterBasePath);
-            } catch (JSONException e) {
-                Log.e(LOG_TAG, "Movie Json parsing failed! ", e);
-            }
-            return null;
-        }
-
-        /** Fetches a detail information for a specific movie, matching the movieId. */
-        private String fetchMovieDetail(String movieId, String param) {
-            String movieJsonString = null;
-            final String MOVIEDB_BASE_URL = "http://api.themoviedb.org/3/movie";
-
-            Uri builtUri = Uri.parse(MOVIEDB_BASE_URL).buildUpon()
-                    .appendPath(movieId)
-                    .appendQueryParameter(API_KEY_PARAM, BuildConfig.THEMOVIEDB_API_KEY)
-                    .build();
-
-            movieJsonString = doHttpGet(builtUri);
-
-            try {
-                JSONObject root = new JSONObject((movieJsonString));
-                return root.getString(param);
-            } catch (JSONException e) {
-                Log.e(LOG_TAG, "Movie details Json parsing failed! ", e);
-            }
-            return null;
-        }
-
-        /** Runs an HTTP GET operation on the URI provided and returns the received string */
-        private String doHttpGet(Uri uri) {
-            HttpURLConnection urlConnection = null;
-            BufferedReader reader = null;
-            String receivedString = null;
-
-            try {
-                URL url = new URL(uri.toString());
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
-
-                InputStream inputStream = urlConnection.getInputStream();
-                StringBuffer buffer = new StringBuffer();
-                if (inputStream == null){
-                    return null;
-                }
-
-                reader = new BufferedReader(new InputStreamReader(inputStream));
-
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    buffer.append(line + "\n");
-                }
-
-                if (buffer.length() == 0) {
-                    return null;
-                }
-
-                receivedString = buffer.toString();
-
-            } catch (IOException e) {
-                Log.e(LOG_TAG, "Error ", e);
-            } finally {
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
-                if (reader != null) {
-                    try {
-                        reader.close();
-                    } catch (final IOException e) {
-                        Log.e(LOG_TAG, "Error closing stream!");
-                    }
-                }
-            }
-            return receivedString;
-        }
-
-        /** Parses a movie listing JSON */
-        Movie[] parseMovieJson(String movieJsonString, String posterBasePath) throws JSONException {
-
-            if (movieJsonString == null) {
-                return null;
-            }
-
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            Calendar calendar = Calendar.getInstance();
-            Movie movies[] = null;
-
-            final String MDB_RESULTS = "results";
-            final String MDB_POSTER = "poster_path";
-            final String MDB_OVERVIEW = "overview";
-            final String MDB_RELEASE = "release_date";
-            final String MDB_ID = "id";
-            final String MDB_TITLE = "original_title";
-            final String MDB_VOTE_AVG = "vote_average";
-            final String MDB_VOTE_COUNT = "vote_count";
-
-            JSONObject root = new JSONObject((movieJsonString));
-            JSONArray results = root.getJSONArray(MDB_RESULTS);
-
-            movies = new Movie[results.length()];
-
-            for (int i = 0; i < results.length(); i++)
-            {
-                JSONObject movieJson = results.getJSONObject(i);
-                String posterPath = posterBasePath + movieJson.getString(MDB_POSTER);
-                String overView = movieJson.getString(MDB_OVERVIEW);
-                Date releaseDate = null;
-                try {
-                    releaseDate = dateFormat.parse(movieJson.getString(MDB_RELEASE));
-                } catch (ParseException e) {
-                    Log.e(LOG_TAG, "Release date parsing failed!");
-                }
-                calendar.setTime(releaseDate);
-                String id = movieJson.getString(MDB_ID);
-                String title = movieJson.getString(MDB_TITLE);
-                String voteCount = movieJson.getString(MDB_VOTE_COUNT);
-                String vote = movieJson.getString(MDB_VOTE_AVG);
-                Uri posterUri = Uri.parse(posterPath).buildUpon()
-                        .appendQueryParameter(API_KEY_PARAM, BuildConfig.THEMOVIEDB_API_KEY)
-                        .build();
-                Movie movie = new Movie(posterUri, id, title, overView, null, releaseDate, vote, voteCount);
-                movies[i] = movie;
-            }
-            return movies;
-        }
-
-        @Override
-        protected void onPostExecute(Movie[] movies) {
-            //Log.v("FetchMovies","New movies fetched");
-            mAdapter.setNewMovies(movies);
-        }
-    }
 }
