@@ -15,27 +15,11 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-
 public class MovieListFragment extends Fragment {
 
     private MovieAdapter mAdapter = null;
     private MovieFetchTask mTask = null;
 
-    private final String IMAGE_PATH = "http://image.tmdb.org/t/p/w185/";
     private String mSortKey = null;
 
     private MovieListCallback mCallback;
@@ -102,7 +86,7 @@ public class MovieListFragment extends Fragment {
                     mAdapter.setNewMovies(newMovies);
                 }
             });
-            mTask.execute(sortKey, IMAGE_PATH);
+            mTask.execute(sortKey);
         }
     }
 

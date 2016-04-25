@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,7 +13,6 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
@@ -24,6 +24,8 @@ public class MovieAdapter extends BaseAdapter {
     private Context mContext;
     private int mResourceId;
     private Movie[] mMovies = null;
+
+    private final String TMDB_IMAGE_URL = "http://image.tmdb.org/t/p/w185";
 
     public MovieAdapter(Context context, int resource, Movie[] objects) {
         super();
@@ -53,6 +55,8 @@ public class MovieAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, final ViewGroup parent) {
+
+        final String API_KEY_PARAM = "api_key";
 
         if (mMovies == null || mMovies.length <= position) {
             return convertView;
@@ -107,9 +111,14 @@ public class MovieAdapter extends BaseAdapter {
 
         /** Scale the images to fit evenly on and fill the whole screen */
         int columnWidth = ((GridView)parent).getColumnWidth();
+
+        final Uri imageUri = Uri.parse(TMDB_IMAGE_URL + movie.getPosterImage()).buildUpon()
+            .appendQueryParameter(API_KEY_PARAM, BuildConfig.THEMOVIEDB_API_KEY)
+            .build();
+
         Picasso.with(mContext)
-                .load(movie.getPosterImage())
-                .resize(columnWidth,0)
+                .load(imageUri)
+                .resize(columnWidth, 0)
                 .into(holder.target);
 
         return convertView;
