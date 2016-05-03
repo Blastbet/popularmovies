@@ -18,6 +18,8 @@ public class MoviePosterLoader {
     private Context mContext;
     private Movie mMovie;
 
+    private Target mTarget;
+
     MoviePosterLoader(Context context, Movie movie) {
         mContext = context;
         mMovie = movie;
@@ -38,12 +40,14 @@ public class MoviePosterLoader {
     }
 
     public void loadMoviePoster(Target target) {
+        mTarget = target;
         Picasso.with(mContext)
                 .load(getURI())
                 .into(target);
     }
 
     public void loadMoviePoster(int width, int height, Target target) {
+        mTarget = target;
         Picasso.with(mContext)
                     .load(getURI())
                     .resize(width, height)

@@ -46,6 +46,7 @@ public class MovieDetailsFragment extends Fragment {
 
     private SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyy");
 
+    private MoviePosterLoader mMoviePosterLoader = null;
     public MovieDetailsFragment() {
         // Required empty public constructor
     }
@@ -113,10 +114,11 @@ public class MovieDetailsFragment extends Fragment {
             Rect rect = new Rect();
             mPosterView.getDrawingRect(rect);
 
-            MoviePosterLoader posterLoader = new MoviePosterLoader(getContext(), mMovie);
-            posterLoader.loadMoviePoster(new Target() {
+            mMoviePosterLoader = new MoviePosterLoader(getContext(), mMovie);
+            mMoviePosterLoader.loadMoviePoster(new Target() {
                 @Override
                 public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                    mPosterView.setBackgroundColor(Color.WHITE);
                     mPosterView.setImageBitmap(bitmap);
                 }
 
