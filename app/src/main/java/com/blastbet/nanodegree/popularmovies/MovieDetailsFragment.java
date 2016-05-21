@@ -23,6 +23,8 @@ import com.squareup.picasso.Target;
 
 import java.text.SimpleDateFormat;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -46,12 +48,12 @@ public class MovieDetailsFragment extends Fragment {
 
     private TMDBMovie mMovie;
 
-    private TextView mTitleView = null;
-    private TextView mReleaseDateView = null;
-    private TextView mOverviewView = null;
-    private TextView mRuntimeView = null;
-    private TextView mRatingView = null;
-    private ImageView mPosterView = null;
+    @BindView(R.id.text_movie_detail_title) TextView mTitleView;
+    @BindView(R.id.text_movie_detail_description) TextView mOverviewView;
+    @BindView(R.id.text_movie_detail_production_year) TextView mReleaseDateView;
+    @BindView(R.id.text_movie_detail_run_length) TextView mRuntimeView;
+    @BindView(R.id.text_movie_detail_rating) TextView mRatingView;
+    @BindView(R.id.image_movie_detail_poster) ImageView mPosterView;
 
     private SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyy");
 
@@ -108,17 +110,12 @@ public class MovieDetailsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_movie_details, container, false);
+        ButterKnife.bind(rootView);
         final TMDBMovie movie = getActivity().getIntent().getParcelableExtra(getString(R.string.movie_extra));
         if (movie != null) {
             mMovie = movie;
         }
 
-        mTitleView = (TextView) rootView.findViewById(R.id.text_movie_detail_title);
-        mOverviewView = (TextView) rootView.findViewById(R.id.text_movie_detail_description);
-        mReleaseDateView = (TextView) rootView.findViewById(R.id.text_movie_detail_production_year);
-        mRuntimeView = (TextView) rootView.findViewById(R.id.text_movie_detail_run_length);
-        mRatingView = (TextView) rootView.findViewById(R.id.text_movie_detail_rating);
-        mPosterView = (ImageView) rootView.findViewById(R.id.image_movie_detail_poster);
 
         if (mMovie == null)
         {
