@@ -24,6 +24,9 @@ import java.util.List;
  * Created by ilkka on 30.3.2016.
  */
 public class MovieAdapter extends BaseAdapter {
+
+    private static final String LOG_TAG = MovieAdapter.class.getSimpleName();
+
     private Context mContext;
     private int mResourceId;
     private List<TMDBMovie> mMovies = null;
@@ -65,7 +68,13 @@ public class MovieAdapter extends BaseAdapter {
 
         final TMDBMovie movie = mMovies.get(position);
 
-        if (convertView == null) {
+        if (convertView != null ) {
+            try {
+                holder = (ImageHolder) convertView.getTag();
+            } catch (ClassCastException e) {
+                holder = null;
+            }
+        } else if (holder == null) {
             holder = new ImageHolder();
             LayoutInflater inflater = ((Activity) mContext).getLayoutInflater();
             convertView = inflater.inflate(mResourceId, parent, false);
@@ -89,7 +98,7 @@ public class MovieAdapter extends BaseAdapter {
 
                 @Override
                 public void onBitmapFailed(Drawable errorDrawable) {
-
+                    Log.e(LOG_TAG, "Failed to load image!");
                     //               imageView.setBackground(errorDrawable);
                 }
 
@@ -100,9 +109,6 @@ public class MovieAdapter extends BaseAdapter {
             };
 
             convertView.setTag(holder);
-
-        } else {
-            holder = (ImageHolder) convertView.getTag();
         }
 
         holder.imageView.setVisibility(View.GONE);
