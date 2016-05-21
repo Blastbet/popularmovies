@@ -14,8 +14,11 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.blastbet.nanodegree.tmdb.TMDBMovie;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
+
+import java.util.List;
 
 /**
  * Created by ilkka on 30.3.2016.
@@ -23,9 +26,9 @@ import com.squareup.picasso.Target;
 public class MovieAdapter extends BaseAdapter {
     private Context mContext;
     private int mResourceId;
-    private Movie[] mMovies = null;
+    private List<TMDBMovie> mMovies = null;
 
-    public MovieAdapter(Context context, int resource, Movie[] objects) {
+    public MovieAdapter(Context context, int resource, List<TMDBMovie> objects) {
         super();
         mContext = context;
         mResourceId = resource;
@@ -39,7 +42,7 @@ public class MovieAdapter extends BaseAdapter {
 
     @Override
     public Object getItem(int position) {
-        return mMovies[position];
+        return mMovies.get(position);
     }
 
     @Override
@@ -48,19 +51,19 @@ public class MovieAdapter extends BaseAdapter {
         {
             return 0;
         }
-        return mMovies.length;
+        return mMovies.size();
     }
 
     @Override
     public View getView(int position, View convertView, final ViewGroup parent) {
 
-        if (mMovies == null || mMovies.length <= position) {
+        if (mMovies == null || mMovies.size() <= position) {
             return convertView;
         }
 
         ImageHolder holder = null;
 
-        final Movie movie = mMovies[position];
+        final TMDBMovie movie = mMovies.get(position);
 
         if (convertView == null) {
             holder = new ImageHolder();
@@ -115,7 +118,7 @@ public class MovieAdapter extends BaseAdapter {
         return convertView;
     }
 
-    public void setNewMovies(Movie... newMovies) {
+    public void setNewMovies(List<TMDBMovie> newMovies) {
         if (newMovies != null)
         {
             this.mMovies = newMovies;

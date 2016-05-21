@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 
+import com.blastbet.nanodegree.tmdb.TMDBMovie;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -16,11 +17,11 @@ public class MoviePosterLoader {
     private static final String API_KEY_PARAM = "api_key";
 
     private Context mContext;
-    private Movie mMovie;
+    private TMDBMovie mMovie;
 
     private Target mTarget;
 
-    MoviePosterLoader(Context context, Movie movie) {
+    MoviePosterLoader(Context context, TMDBMovie movie) {
         mContext = context;
         mMovie = movie;
     }
@@ -33,7 +34,7 @@ public class MoviePosterLoader {
         StringBuilder sb = new StringBuilder(TMDB_BASE_IMAGE_URL);
         sb.append(size);
         sb.append('/');
-        sb.append(mMovie.getPoster());
+        sb.append(mMovie.getPosterPath());
         return Uri.parse(sb.toString()).buildUpon()
                 .appendQueryParameter(API_KEY_PARAM, BuildConfig.THEMOVIEDB_API_KEY)
                 .build();

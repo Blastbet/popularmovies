@@ -8,6 +8,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.blastbet.nanodegree.tmdb.TMDBMovie;
+
 public class MovieListActivity extends AppCompatActivity implements MovieListFragment.MovieListCallback {
 
     @Override
@@ -46,12 +48,12 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
      * Handler for clicks on the movie posters. Brings up the detail view for the movie
      * @param movie The movie data to show.
      */
-    public void onMovieSelectedListener(Movie movie) {
+    public void onMovieSelectedListener(TMDBMovie movie) {
 
         MovieDetailsFragment detailsFragment =
                 (MovieDetailsFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_movie_details);
 
-        Log.v("MovieListActivity", "onMovieSelectedListener, movie:" + movie.getName());
+        Log.v("MovieListActivity", "onMovieSelectedListener, movie:" + movie.getTitle());
         if (detailsFragment == null) {
             // Small display, phone e.g.
             Intent detailsIntent = new Intent(this, MovieDetailsActivity.class);

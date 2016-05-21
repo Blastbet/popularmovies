@@ -14,11 +14,20 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.blastbet.nanodegree.tmdb.TMDBApi;
+import com.blastbet.nanodegree.tmdb.TMDBMovie;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 import java.text.SimpleDateFormat;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 
 /**
@@ -35,7 +44,7 @@ public class MovieDetailsFragment extends Fragment {
     // the fragment initialization parameter
     private static final String ARG_MOVIE = "movie_details";
 
-    private Movie mMovie;
+    private TMDBMovie mMovie;
 
     private TextView mTitleView = null;
     private TextView mReleaseDateView = null;
@@ -47,6 +56,11 @@ public class MovieDetailsFragment extends Fragment {
     private SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyy");
 
     private MoviePosterLoader mMoviePosterLoader = null;
+
+    private Retrofit mRetrofit;
+    private Call<TMDBMovie> mMovieCall;
+    private TMDBApi mTMDBApi;;
+
     public MovieDetailsFragment() {
         // Required empty public constructor
     }
@@ -58,7 +72,7 @@ public class MovieDetailsFragment extends Fragment {
      * @param movie Movie details to show.
      * @return A new instance of fragment MovieDetailsFragment.
      */
-    public static MovieDetailsFragment newInstance(Movie movie) {
+    public static MovieDetailsFragment newInstance(TMDBMovie movie) {
         MovieDetailsFragment fragment = new MovieDetailsFragment();
         Bundle args = new Bundle();
         args.putParcelable(ARG_MOVIE, movie);
@@ -69,9 +83,24 @@ public class MovieDetailsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        final String MOVIEDB_BASE_URL = "http://api.themoviedb.org/3/";
+
         if (getArguments() != null) {
             mMovie = getArguments().getParcelable(ARG_MOVIE);
         }
+        mRetrofit = new Retrofit.Builder()
+                .addConverterFactory(GsonConverterFactory.create())
+                .baseUrl(MOVIEDB_BASE_URL)
+                .build();
+
+        mTMDBApi = mRetrofit.create(TMDBApi.class);
+
+    }
+
+    private void fetchRunTime() {
+        mMovieCall = mTMDBApi.getMovieDetails(mMovie.getId(), BuildConfig.THEMOVIEDB_API_KEY);
+        mMovieCall.enqueue(mMovieCallback);
     }
 
     @Override
@@ -79,7 +108,7 @@ public class MovieDetailsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_movie_details, container, false);
-        final Movie movie = getActivity().getIntent().getParcelableExtra(getString(R.string.movie_extra));
+        final TMDBMovie movie = getActivity().getIntent().getParcelableExtra(getString(R.string.movie_extra));
         if (movie != null) {
             mMovie = movie;
         }
@@ -102,12 +131,17 @@ public class MovieDetailsFragment extends Fragment {
             mPosterView.setBackgroundColor(Color.GRAY);
         } else {
             /** Populate the view with the movie details */
-            mTitleView.setText(movie.getName());
+            mTitleView.setText(movie.getTitle());
             mOverviewView.setText(movie.getOverview());
             final String releaseDate = mDateFormat.format(movie.getReleaseDate()).toString();
             mReleaseDateView.setText(releaseDate);
-            mRuntimeView.setText(movie.getRuntime());
-            mRatingView.setText(movie.getRating().toString());
+            if (movie.getRuntime() == null || movie.getRuntime().isEmpty()) {
+                mRatingView.setText("-");
+                fetchRunTime();
+            } else {
+                mRuntimeView.setText(movie.getRuntime() + " min");
+            }
+            mRatingView.setText(movie.getVoteAverage());
             /** Use picasso to download the movie poster and also to fit the image into the
              * imageview provided
              */
@@ -124,7 +158,7 @@ public class MovieDetailsFragment extends Fragment {
 
                 @Override
                 public void onBitmapFailed(Drawable errorDrawable) {
-                    Log.e(LOG_TAG, "Failed to load poster image for movie \"" + mMovie.getName() +"\"");
+                    Log.e(LOG_TAG, "Failed to load poster image for movie \"" + mMovie.getTitle() +"\"");
                 }
 
                 @Override
@@ -145,4 +179,18 @@ public class MovieDetailsFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
     }
+
+    private Callback<TMDBMovie> mMovieCallback = new Callback<TMDBMovie>() {
+        @Override
+        public void onResponse(Call<TMDBMovie> call, Response<TMDBMovie> response) {
+            final String runtime = response.body().getRuntime();
+            mMovie.setRuntime(runtime);
+            mRuntimeView.setText(runtime + " min");
+        }
+
+        @Override
+        public void onFailure(Call<TMDBMovie> call, Throwable t) {
+            Toast.makeText(getContext(), "Failed to fetch movie runtime!", Toast.LENGTH_LONG).show();
+        }
+    };
 }

@@ -1,14 +1,18 @@
 package com.blastbet.nanodegree.tmdb;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by ilkka on 17.5.2016.
  */
-public class TMDBMovie {
+public class TMDBMovie implements Parcelable{
     @SerializedName("poster_path")
     @Expose
     private String posterPath;
@@ -23,7 +27,7 @@ public class TMDBMovie {
     private Date releaseDate;
 
     @SerializedName("genre_ids")
-    private String genreIds;
+    private List<String> genreIds;
 
     @Expose
     private String id;
@@ -54,6 +58,50 @@ public class TMDBMovie {
     @SerializedName("vote_average")
     @Expose
     private String voteAverage;
+
+    @SerializedName("runtime")
+    @Expose
+    private String runtime;
+
+    /** Parcelable support code */
+    public TMDBMovie(Parcel in) {
+        this.posterPath = in.readString();
+        this.id = in.readString();
+        this.title = in.readString();
+        this.overview = in.readString();
+        this.runtime = in.readString();
+        this.releaseDate = new Date(in.readLong());
+        this.voteAverage = in.readString();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(posterPath);
+        dest.writeString(id);
+        dest.writeString(title);
+        dest.writeString(overview);
+        dest.writeString(runtime);
+        dest.writeLong(releaseDate.getTime());
+        dest.writeString(voteAverage);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Parcelable.Creator<TMDBMovie> CREATOR =
+            new Parcelable.Creator<TMDBMovie>() {
+
+                public TMDBMovie createFromParcel(Parcel in) {
+                    return new TMDBMovie(in);
+                }
+
+                public TMDBMovie[] newArray(int size) {
+                    return new TMDBMovie[size];
+                }
+            };
+
 
     public String getPosterPath() {
         return posterPath;
@@ -87,11 +135,11 @@ public class TMDBMovie {
         this.releaseDate = releaseDate;
     }
 
-    public String getGenreIds() {
+    public List<String> getGenreIds() {
         return genreIds;
     }
 
-    public void setGenreIds(String genreIds) {
+    public void setGenreIds(List<String> genreIds) {
         this.genreIds = genreIds;
     }
 
@@ -165,5 +213,13 @@ public class TMDBMovie {
 
     public void setVoteAverage(String voteAverage) {
         this.voteAverage = voteAverage;
+    }
+
+    public String getRuntime() {
+        return runtime;
+    }
+
+    public void setRuntime(String runtime) {
+        this.runtime = runtime;
     }
 }
