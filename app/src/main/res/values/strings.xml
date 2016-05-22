@@ -3,7 +3,6 @@
     <string name="movie_details">MovieDetail</string>
     <string name="action_settings">Settings</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="mark_as_favorite">Mark as favorite</string>
     <string name="movie_extra">MOVIE_EXTRA</string>
@@ -24,6 +23,28 @@
     <string-array name="pref_sort_by_values">
         <item>popular</item>
         <item>top_rated</item>
+    </string-array>
+
+
+    <!-- Poster image size -->
+    <string name="pref_poster_size_label">Poster Image Size</string>
+    <string name="pref_poster_size_key" translatable="false">poster_size</string>
+    <string name="pref_poster_size_default" translatable="false">w185</string>
+    <string-array name="pref_poster_sizes_options">
+        <item>92</item>
+        <item>154</item>
+        <item>185</item>
+        <item>342</item>
+        <item>500</item>
+        <item>782</item>
+    </string-array>
+    <string-array name="pref_poster_sizes_values">
+        <item>w92</item>
+        <item>w154</item>
+        <item>w185</item>
+        <item>w342</item>
+        <item>w500</item>
+        <item>w782</item>
     </string-array>
 
     <string name="pref_header_general">General</string>

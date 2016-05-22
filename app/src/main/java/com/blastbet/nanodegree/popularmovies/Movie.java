@@ -1,6 +1,5 @@
 package com.blastbet.nanodegree.popularmovies;
 
-import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -11,7 +10,7 @@ import java.util.Date;
  */
 
 public class Movie implements Parcelable {
-    protected Uri posterImage;
+    protected String poster;
     protected String id;
     protected String name;
     protected String overview;
@@ -19,8 +18,8 @@ public class Movie implements Parcelable {
     protected Date releaseDate;
     protected Rating rating;
 
-    public Movie(Uri posterImage, String id, String name, String overview, String runtime, Date releaseDate, Rating rating) {
-        this.posterImage = posterImage;
+    public Movie(String poster, String id, String name, String overview, String runtime, Date releaseDate, Rating rating) {
+        this.poster = poster;
         this.id = id;
         this.name = name;
         this.overview = overview;
@@ -29,8 +28,8 @@ public class Movie implements Parcelable {
         this.rating = rating;
     }
 
-    public Movie(Uri posterImage, String id, String name, String overview, String runtime, Date releaseDate, String averageVote, String voteCount) {
-        this.posterImage = posterImage;
+    public Movie(String poster, String id, String name, String overview, String runtime, Date releaseDate, String averageVote, String voteCount) {
+        this.poster = poster;
         this.id = id;
         this.name = name;
         this.overview = overview;
@@ -41,7 +40,7 @@ public class Movie implements Parcelable {
 
     /** Parcelable support code */
     public Movie(Parcel in) {
-        this.posterImage = Uri.parse(in.readString());
+        this.poster = in.readString();
         this.id = in.readString();
         this.name = in.readString();
         this.overview = in.readString();
@@ -52,7 +51,7 @@ public class Movie implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(posterImage.toString());
+        dest.writeString(poster);
         dest.writeString(id);
         dest.writeString(name);
         dest.writeString(overview);
@@ -79,12 +78,12 @@ public class Movie implements Parcelable {
     };
 
     /** Getters & Setters for the members */
-    public Uri getPosterImage() {
-        return posterImage;
+    public String getPoster() {
+        return poster;
     }
 
-    public void setPosterImage(Uri posterImage) {
-        this.posterImage = posterImage;
+    public void setPoster(String poster) {
+        this.poster = poster;
     }
 
     public String getName() {

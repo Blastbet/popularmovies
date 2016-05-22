@@ -1,16 +1,22 @@
 package com.blastbet.nanodegree.popularmovies;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import java.text.SimpleDateFormat;
 
@@ -24,6 +30,8 @@ import java.text.SimpleDateFormat;
  * create an instance of this fragment.
  */
 public class MovieDetailsFragment extends Fragment {
+    private static final String LOG_TAG = MovieDetailsFragment.class.getSimpleName();
+
     // the fragment initialization parameter
     private static final String ARG_MOVIE = "movie_details";
 
@@ -102,9 +110,26 @@ public class MovieDetailsFragment extends Fragment {
             /** Use picasso to download the movie poster and also to fit the image into the
              * imageview provided
              */
-            Picasso.with(getActivity()).load(movie.getPosterImage())
-                    .fit()
-                    .into(mPosterView);
+            Rect rect = new Rect();
+            mPosterView.getDrawingRect(rect);
+
+            MoviePosterLoader posterLoader = new MoviePosterLoader(getContext(), mMovie);
+            posterLoader.loadMoviePoster(new Target() {
+                @Override
+                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                    mPosterView.setImageBitmap(bitmap);
+                }
+
+                @Override
+                public void onBitmapFailed(Drawable errorDrawable) {
+                    Log.e(LOG_TAG, "Failed to load poster image for movie \"" + mMovie.getName() +"\"");
+                }
+
+                @Override
+                public void onPrepareLoad(Drawable placeHolderDrawable) {
+                    mPosterView.setBackground(placeHolderDrawable);
+                }
+            });
         }
         return rootView;
     }

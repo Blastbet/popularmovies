@@ -40,14 +40,13 @@ public class MovieFetchTask extends AsyncTask<String, Void, Movie[]> {
     @Override
     protected Movie[] doInBackground(String... params) {
 
-        if (params == null || params.length < 2) {
+        if (params == null || params.length != 1) {
             return null;
         }
 
         final String queryPath = params[0];
-        final String posterBasePath = params[1];
 
-        Movie[] movies = fetchMovieList(queryPath, posterBasePath);
+        Movie[] movies = fetchMovieList(queryPath);
 
         if (movies == null) {
             return null;
@@ -63,7 +62,7 @@ public class MovieFetchTask extends AsyncTask<String, Void, Movie[]> {
     }
 
     /** Fetches the list of movies using the sort (queryParam) key provided */
-    private Movie[] fetchMovieList(String queryParam, String posterBasePath) {
+    private Movie[] fetchMovieList(String queryParam) {
         String movieJsonString = null;
         final String MOVIEDB_BASE_URL = "http://api.themoviedb.org/3/movie";
 
@@ -75,7 +74,7 @@ public class MovieFetchTask extends AsyncTask<String, Void, Movie[]> {
         movieJsonString = doHttpGet(builtUri);
 
         try {
-            return parseMovieJson(movieJsonString, posterBasePath);
+            return parseMovieJson(movieJsonString);
         } catch (JSONException e) {
             Log.e(LOG_TAG, "Movie Json parsing failed! ", e);
         }
@@ -152,7 +151,7 @@ public class MovieFetchTask extends AsyncTask<String, Void, Movie[]> {
     }
 
     /** Parses a movie listing JSON */
-    Movie[] parseMovieJson(String movieJsonString, String posterBasePath) throws JSONException {
+    Movie[] parseMovieJson(String movieJsonString) throws JSONException {
 
         if (movieJsonString == null) {
             return null;
@@ -179,7 +178,7 @@ public class MovieFetchTask extends AsyncTask<String, Void, Movie[]> {
         for (int i = 0; i < results.length(); i++)
         {
             JSONObject movieJson = results.getJSONObject(i);
-            String posterPath = posterBasePath + movieJson.getString(MDB_POSTER);
+            String posterPath = movieJson.getString(MDB_POSTER);
             String overView = movieJson.getString(MDB_OVERVIEW);
             Date releaseDate = null;
             try {
@@ -192,10 +191,7 @@ public class MovieFetchTask extends AsyncTask<String, Void, Movie[]> {
             String title = movieJson.getString(MDB_TITLE);
             String voteCount = movieJson.getString(MDB_VOTE_COUNT);
             String vote = movieJson.getString(MDB_VOTE_AVG);
-            Uri posterUri = Uri.parse(posterPath).buildUpon()
-                    .appendQueryParameter(API_KEY_PARAM, BuildConfig.THEMOVIEDB_API_KEY)
-                    .build();
-            Movie movie = new Movie(posterUri, id, title, overView, null, releaseDate, vote, voteCount);
+            Movie movie = new Movie(posterPath, id, title, overView, null, releaseDate, vote, voteCount);
             movies[i] = movie;
         }
         return movies;

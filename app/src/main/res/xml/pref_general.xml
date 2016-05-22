@@ -8,4 +8,12 @@
         android:entries="@array/pref_sort_by"
         android:entryValues="@array/pref_sort_by_values"/>
 
+    <ListPreference
+        android:title="@string/pref_poster_size_label"
+        android:summary="@string/pref_poster_size_label"
+        android:key="@string/pref_poster_size_key"
+        android:defaultValue="@string/pref_poster_size_default"
+        android:entries="@array/pref_poster_sizes_options"
+        android:entryValues="@array/pref_poster_sizes_values"/>
+
 </PreferenceScreen>

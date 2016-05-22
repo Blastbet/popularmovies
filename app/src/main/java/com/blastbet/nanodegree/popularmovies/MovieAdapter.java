@@ -107,10 +107,10 @@ public class MovieAdapter extends BaseAdapter {
 
         /** Scale the images to fit evenly on and fill the whole screen */
         int columnWidth = ((GridView)parent).getColumnWidth();
-        Picasso.with(mContext)
-                .load(movie.getPosterImage())
-                .resize(columnWidth,0)
-                .into(holder.target);
+
+        // Start loading the poster image.
+        MoviePosterLoader posterLoader = new MoviePosterLoader(mContext, movie);
+        posterLoader.loadMoviePoster(columnWidth, 0, holder.target);
 
         return convertView;
     }
