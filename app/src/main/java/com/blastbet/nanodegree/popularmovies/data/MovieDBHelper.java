@@ -15,7 +15,7 @@ public class MovieDBHelper extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
 
-    private static final String DATABASE_NAME = "movie.db";
+    protected static final String DATABASE_NAME = "movie.db";
 
     public MovieDBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -23,27 +23,27 @@ public class MovieDBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        final String SQL_CREATE_MOVIE_TABLE = "CREATE TABLE" + MovieEntry.TABLE_NAME + " (" +
+        final String SQL_CREATE_MOVIE_TABLE = "CREATE TABLE " + MovieEntry.TABLE_NAME + " (" +
                 MovieEntry._ID + " INTEGER PRIMARY KEY, " +
                 MovieEntry.COLUMN_MOVIE_ID + " INTEGER UNIQUE NOT NULL, " +
                 MovieEntry.COLUMN_TITLE + " TEXT NOT NULL, " +
                 MovieEntry.COLUMN_OVERVIEW + " TEXT NOT NULL, " +
                 MovieEntry.COLUMN_RUNTIME + " TEXT NOT NULL, " +
                 MovieEntry.COLUMN_RELEASEDATE + " INTEGER NOT NULL, " +
-                MovieEntry.COLUMN_VOTEAVERAGE + " TEXT NOT NULL, " +
+                MovieEntry.COLUMN_VOTEAVERAGE + " TEXT NOT NULL" +
                 " );";
 
-        final String SQL_CREATE_REVIEW_TABLE = "CREATE TABLE" + ReviewEntry.TABLE_NAME + " (" +
+        final String SQL_CREATE_REVIEW_TABLE = "CREATE TABLE " + ReviewEntry.TABLE_NAME + " (" +
                 ReviewEntry._ID + " INTEGER PRIMARY KEY, " +
                 ReviewEntry.COLUMN_MOVIE_ID + " INTEGER NOT NULL, " +
                 ReviewEntry.COLUMN_AUTHOR + " TEXT NOT NULL, " +
                 ReviewEntry.COLUMN_CONTENT + " TEXT NOT NULL, " +
                 // Set foreign key to movie table tmdb id
                 " FOREIGN KEY (" + ReviewEntry.COLUMN_MOVIE_ID + ") REFERENCES " +
-                MovieEntry.TABLE_NAME + " (" + MovieEntry.COLUMN_MOVIE_ID + "), " +
+                MovieEntry.TABLE_NAME + " (" + MovieEntry.COLUMN_MOVIE_ID + ")" +
                 " );";
 
-        final String SQL_CREATE_TRAILER_TABLE = "CREATE TABLE" + TrailerEntry.TABLE_NAME + " (" +
+        final String SQL_CREATE_TRAILER_TABLE = "CREATE TABLE " + TrailerEntry.TABLE_NAME + " (" +
                 TrailerEntry._ID + " INTEGER PRIMARY KEY, " +
                 TrailerEntry.COLUMN_MOVIE_ID + " INTEGER NOT NULL, " +
                 TrailerEntry.COLUMN_KEY + " TEXT NOT NULL, " +
