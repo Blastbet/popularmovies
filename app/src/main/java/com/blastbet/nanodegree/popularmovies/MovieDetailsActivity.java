@@ -7,7 +7,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.blastbet.nanodegree.tmdb.TMDBMovie;
+import com.blastbet.nanodegree.popularmovies.tmdb.Movie;
 
 public class MovieDetailsActivity extends AppCompatActivity {
 
@@ -15,7 +15,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_details);
-        final TMDBMovie movie = getIntent().getParcelableExtra(getString(R.string.movie_extra));
+        final Movie movie = getIntent().getParcelableExtra(getString(R.string.movie_extra));
         MovieDetailsFragment fragment = MovieDetailsFragment.newInstance(movie);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()

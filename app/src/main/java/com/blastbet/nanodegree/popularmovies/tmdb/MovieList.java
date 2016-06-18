@@ -1,4 +1,4 @@
-package com.blastbet.nanodegree.tmdb;
+package com.blastbet.nanodegree.popularmovies.tmdb;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * Created by ilkka on 21.5.2016.
  */
-public class TMBDMovieListResponse {
+public class MovieList {
 
     public static final String DATE_FORMAT = "yyyy-MM-dd";
 
@@ -18,7 +18,7 @@ public class TMBDMovieListResponse {
 
     @SerializedName("results")
     @Expose
-    private List<TMDBMovie> movieList;
+    private List<Movie> movieList;
 
     @SerializedName("total_results")
     private String totalResults;
@@ -34,11 +34,11 @@ public class TMBDMovieListResponse {
         this.page = page;
     }
 
-    public List<TMDBMovie> getMovieList() {
+    public List<Movie> getMovieList() {
         return movieList;
     }
 
-    public void setMovieList(List<TMDBMovie> movieList) {
+    public void setMovieList(List<Movie> movieList) {
         this.movieList = movieList;
     }
 
@@ -58,11 +58,11 @@ public class TMBDMovieListResponse {
         this.totalPages = totalPages;
     }
 
-    public static TMBDMovieListResponse parseJSON(String response) {
+    public static MovieList parseJSON(String response) {
         GsonBuilder builder = new GsonBuilder();
         builder.setDateFormat(DATE_FORMAT);
         Gson gson = builder.create();
-        TMBDMovieListResponse movieListResponse = gson.fromJson(response, TMBDMovieListResponse.class);
-        return movieListResponse;
+        MovieList movieList = gson.fromJson(response, MovieList.class);
+        return movieList;
     }
 }

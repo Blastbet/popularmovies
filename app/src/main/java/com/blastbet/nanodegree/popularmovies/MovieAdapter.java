@@ -11,10 +11,8 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.Toast;
 
-import com.blastbet.nanodegree.tmdb.TMDBMovie;
+import com.blastbet.nanodegree.popularmovies.tmdb.Movie;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -29,9 +27,9 @@ public class MovieAdapter extends BaseAdapter {
 
     private Context mContext;
     private int mResourceId;
-    private List<TMDBMovie> mMovies = null;
+    private List<Movie> mMovies = null;
 
-    public MovieAdapter(Context context, int resource, List<TMDBMovie> objects) {
+    public MovieAdapter(Context context, int resource, List<Movie> objects) {
         super();
         mContext = context;
         mResourceId = resource;
@@ -66,7 +64,7 @@ public class MovieAdapter extends BaseAdapter {
 
         ImageHolder holder = null;
 
-        final TMDBMovie movie = mMovies.get(position);
+        final Movie movie = mMovies.get(position);
 
         if (convertView != null ) {
             try {
@@ -124,7 +122,7 @@ public class MovieAdapter extends BaseAdapter {
         return convertView;
     }
 
-    public void setNewMovies(List<TMDBMovie> newMovies) {
+    public void setNewMovies(List<Movie> newMovies) {
         if (newMovies != null)
         {
             this.mMovies = newMovies;

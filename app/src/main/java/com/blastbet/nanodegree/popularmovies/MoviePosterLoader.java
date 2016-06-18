@@ -4,7 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 
-import com.blastbet.nanodegree.tmdb.TMDBMovie;
+import com.blastbet.nanodegree.popularmovies.tmdb.Movie;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -17,11 +17,11 @@ public class MoviePosterLoader {
     private static final String API_KEY_PARAM = "api_key";
 
     private Context mContext;
-    private TMDBMovie mMovie;
+    private Movie mMovie;
 
     private Target mTarget;
 
-    MoviePosterLoader(Context context, TMDBMovie movie) {
+    MoviePosterLoader(Context context, Movie movie) {
         mContext = context;
         mMovie = movie;
     }

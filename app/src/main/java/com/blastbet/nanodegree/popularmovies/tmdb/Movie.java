@@ -1,4 +1,4 @@
-package com.blastbet.nanodegree.tmdb;
+package com.blastbet.nanodegree.popularmovies.tmdb;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * Created by ilkka on 17.5.2016.
  */
-public class TMDBMovie implements Parcelable{
+public class Movie implements Parcelable{
     @SerializedName("poster_path")
     @Expose
     private String posterPath;
@@ -64,7 +64,7 @@ public class TMDBMovie implements Parcelable{
     private String runtime;
 
     /** Parcelable support code */
-    public TMDBMovie(Parcel in) {
+    public Movie(Parcel in) {
         this.posterPath = in.readString();
         this.id = in.readString();
         this.title = in.readString();
@@ -90,15 +90,15 @@ public class TMDBMovie implements Parcelable{
         return 0;
     }
 
-    public static final Parcelable.Creator<TMDBMovie> CREATOR =
-            new Parcelable.Creator<TMDBMovie>() {
+    public static final Parcelable.Creator<Movie> CREATOR =
+            new Parcelable.Creator<Movie>() {
 
-                public TMDBMovie createFromParcel(Parcel in) {
-                    return new TMDBMovie(in);
+                public Movie createFromParcel(Parcel in) {
+                    return new Movie(in);
                 }
 
-                public TMDBMovie[] newArray(int size) {
-                    return new TMDBMovie[size];
+                public Movie[] newArray(int size) {
+                    return new Movie[size];
                 }
             };
 

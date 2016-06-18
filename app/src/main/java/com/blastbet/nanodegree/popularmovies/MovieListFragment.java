@@ -13,9 +13,9 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.Toast;
 
-import com.blastbet.nanodegree.tmdb.TMBDMovieListResponse;
-import com.blastbet.nanodegree.tmdb.TMDBApi;
-import com.blastbet.nanodegree.tmdb.TMDBMovie;
+import com.blastbet.nanodegree.popularmovies.tmdb.MovieList;
+import com.blastbet.nanodegree.popularmovies.tmdb.MovieApi;
+import com.blastbet.nanodegree.popularmovies.tmdb.Movie;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -33,11 +33,11 @@ public class MovieListFragment extends Fragment {
     private MovieListCallback mCallback;
 
     private Retrofit mRetrofit;
-    private Call<TMBDMovieListResponse> mMovieListCall;
-    private TMDBApi mTMDBApi;
+    private Call<MovieList> mMovieListCall;
+    private MovieApi mMovieApi;
 
     public interface MovieListCallback {
-        void onMovieSelectedListener(TMDBMovie movie);
+        void onMovieSelectedListener(Movie movie);
     }
 
     public MovieListFragment() {
@@ -60,7 +60,7 @@ public class MovieListFragment extends Fragment {
                 .baseUrl(MOVIEDB_BASE_URL)
                 .build();
 
-        mTMDBApi = mRetrofit.create(TMDBApi.class);
+        mMovieApi = mRetrofit.create(MovieApi.class);
         fetchMovies(mSortKey);
     }
 
@@ -97,22 +97,22 @@ public class MovieListFragment extends Fragment {
         }
     }
 
-    private Callback<TMBDMovieListResponse> mMovieListResponseCallback = new Callback<TMBDMovieListResponse>() {
+    private Callback<MovieList> mMovieListResponseCallback = new Callback<MovieList>() {
         @Override
-        public void onResponse(Call<TMBDMovieListResponse> call, Response<TMBDMovieListResponse> response) {
-            TMBDMovieListResponse movieListResponse = response.body();
-            mAdapter.setNewMovies(movieListResponse.getMovieList());
+        public void onResponse(Call<MovieList> call, Response<MovieList> response) {
+            MovieList movieList = response.body();
+            mAdapter.setNewMovies(movieList.getMovieList());
         }
 
         @Override
-        public void onFailure(Call<TMBDMovieListResponse> call, Throwable t) {
+        public void onFailure(Call<MovieList> call, Throwable t) {
             Log.e(LOG_TAG, "Failed to fetch movie list! " + t.getMessage());
             Toast.makeText(getContext(), "Failed to fetch movie list!", Toast.LENGTH_LONG).show();
         }
     };
 
     private void fetchMovies(String sortKey) {
-        mMovieListCall = mTMDBApi.getMovieList(sortKey, BuildConfig.THEMOVIEDB_API_KEY);
+        mMovieListCall = mMovieApi.getMovieList(sortKey, BuildConfig.THEMOVIEDB_API_KEY);
         mMovieListCall.enqueue(mMovieListResponseCallback);
     }
 
@@ -138,7 +138,7 @@ public class MovieListFragment extends Fragment {
     private void onMovieSelectedListener(int position) {
         //Log.v("MovieListFragment", "onMovieSelectedListener (pos: " + position + "), movie:" + mAdapter.getItem(position));
 
-        TMDBMovie movie = (TMDBMovie) mAdapter.getItem(position);
+        Movie movie = (Movie) mAdapter.getItem(position);
         mCallback.onMovieSelectedListener(movie);
     }
 

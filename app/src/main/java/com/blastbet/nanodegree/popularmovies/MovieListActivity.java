@@ -8,7 +8,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.blastbet.nanodegree.tmdb.TMDBMovie;
+import com.blastbet.nanodegree.popularmovies.tmdb.Movie;
 
 public class MovieListActivity extends AppCompatActivity implements MovieListFragment.MovieListCallback {
 
@@ -48,7 +48,7 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
      * Handler for clicks on the movie posters. Brings up the detail view for the movie
      * @param movie The movie data to show.
      */
-    public void onMovieSelectedListener(TMDBMovie movie) {
+    public void onMovieSelectedListener(Movie movie) {
 
         MovieDetailsFragment detailsFragment =
                 (MovieDetailsFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_movie_details);
