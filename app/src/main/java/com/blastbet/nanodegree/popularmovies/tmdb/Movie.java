@@ -30,7 +30,7 @@ public class Movie implements Parcelable{
     private List<String> genreIds;
 
     @Expose
-    private String id;
+    private int id;
 
     @SerializedName("original_title")
     @Expose
@@ -66,7 +66,7 @@ public class Movie implements Parcelable{
     /** Parcelable support code */
     public Movie(Parcel in) {
         this.posterPath = in.readString();
-        this.id = in.readString();
+        this.id = in.readInt();
         this.title = in.readString();
         this.overview = in.readString();
         this.runtime = in.readString();
@@ -77,7 +77,7 @@ public class Movie implements Parcelable{
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(posterPath);
-        dest.writeString(id);
+        dest.writeInt(id);
         dest.writeString(title);
         dest.writeString(overview);
         dest.writeString(runtime);
@@ -143,11 +143,11 @@ public class Movie implements Parcelable{
         this.genreIds = genreIds;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
