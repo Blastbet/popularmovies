@@ -13,11 +13,11 @@ public interface MovieApi {
     public Call<MovieList> getMovieList(@Path("sortorder") String sortOrder, @Query("api_key") String apiKey);
 
     @GET("movie/{id}")
-    public Call<Movie> getMovieDetails(@Path("id") String movieId, @Query("api_key") String apiKey);
+    public Call<Movie> getMovieDetails(@Path("id") int movieId, @Query("api_key") String apiKey);
 
     @GET("movie/{id}/videos")
-    public Call<MovieTrailerList> getMovieTrailers(@Path("id") String movieId, @Query("api_key") String apiKey);
+    public Call<MovieTrailerList> getMovieTrailers(@Path("id") int movieId, @Query("api_key") String apiKey);
 
     @GET("movie/{id}/reviews")
-    public Call<MovieReviewList> getMovieReviews(@Path("id") String movieId, @Query("api_key") String apiKey);
+    public Call<MovieReviewList> getMovieReviews(@Path("id") int movieId, @Query("api_key") String apiKey);
 }
