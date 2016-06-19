@@ -1,5 +1,6 @@
 package com.blastbet.nanodegree.popularmovies.data;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.test.AndroidTestCase;
@@ -52,10 +53,10 @@ public class TestDB extends AndroidTestCase {
         columns.add(MovieContract.MovieEntry._ID);
         columns.add(MovieContract.MovieEntry.COLUMN_MOVIE_ID);
         columns.add(MovieContract.MovieEntry.COLUMN_OVERVIEW);
-        columns.add(MovieContract.MovieEntry.COLUMN_RELEASEDATE);
+        columns.add(MovieContract.MovieEntry.COLUMN_RELEASE_DATE);
         columns.add(MovieContract.MovieEntry.COLUMN_RUNTIME);
         columns.add(MovieContract.MovieEntry.COLUMN_TITLE);
-        columns.add(MovieContract.MovieEntry.COLUMN_VOTEAVERAGE);
+        columns.add(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE);
 
         int columnNameIndex = c.getColumnIndex("name");
         do {
@@ -111,6 +112,56 @@ public class TestDB extends AndroidTestCase {
 
         db.close();
     }
+
+    public void testMovieTable() {
+        final int MOVIE_ID = 123456;
+        TestUtilities.insertNormalMovie(getContext(), MOVIE_ID);
+    }
+
+    public void testTrailerTable() {
+        final int MOVIE_ID = 123456;
+
+        TestUtilities.insertNormalMovie(getContext(), MOVIE_ID);
+
+        ContentValues trailerContent = TestUtilities.createNormalTrailer(MOVIE_ID);
+
+        long rowId = TestUtilities.insertContent(getContext(), "movie trailer",
+                MovieContract.TrailerEntry.TABLE_NAME, trailerContent);
+
+        MovieDBHelper dbHelper = new MovieDBHelper(getContext());
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        Cursor cursor = db.query(MovieContract.TrailerEntry.TABLE_NAME,
+                null, null, null, null, null, null);
+
+        cursor.moveToFirst();
+        TestUtilities.validateRecord(cursor, trailerContent);
+
+        db.close();
+    }
+
+    public void testReviewTable() {
+        final int MOVIE_ID = 123456;
+
+        TestUtilities.insertNormalMovie(getContext(), MOVIE_ID);
+
+        ContentValues reviewContent = TestUtilities.createNormalReview(MOVIE_ID);
+
+        long rowId = TestUtilities.insertContent(getContext(), "movie review",
+                MovieContract.ReviewEntry.TABLE_NAME, reviewContent);
+
+        MovieDBHelper dbHelper = new MovieDBHelper(getContext());
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        Cursor cursor = db.query(MovieContract.ReviewEntry.TABLE_NAME,
+                null, null, null, null, null, null);
+
+        cursor.moveToFirst();
+        TestUtilities.validateRecord(cursor, reviewContent);
+
+        db.close();
+    }
+
 }
 
 

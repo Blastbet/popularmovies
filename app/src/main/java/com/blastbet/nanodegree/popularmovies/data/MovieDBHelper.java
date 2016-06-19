@@ -22,6 +22,12 @@ public class MovieDBHelper extends SQLiteOpenHelper {
     }
 
     @Override
+    public void onOpen(SQLiteDatabase db) {
+        super.onOpen(db);
+        db.execSQL("PRAGMA foreign_keys=ON;");
+    }
+
+    @Override
     public void onCreate(SQLiteDatabase db) {
         final String SQL_CREATE_MOVIE_TABLE = "CREATE TABLE " + MovieEntry.TABLE_NAME + " (" +
                 MovieEntry._ID + " INTEGER PRIMARY KEY, " +
@@ -29,8 +35,8 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 MovieEntry.COLUMN_TITLE + " TEXT NOT NULL, " +
                 MovieEntry.COLUMN_OVERVIEW + " TEXT NOT NULL, " +
                 MovieEntry.COLUMN_RUNTIME + " TEXT NOT NULL, " +
-                MovieEntry.COLUMN_RELEASEDATE + " INTEGER NOT NULL, " +
-                MovieEntry.COLUMN_VOTEAVERAGE + " TEXT NOT NULL" +
+                MovieEntry.COLUMN_RELEASE_DATE + " INTEGER NOT NULL, " +
+                MovieEntry.COLUMN_VOTE_AVERAGE + " TEXT NOT NULL" +
                 " );";
 
         final String SQL_CREATE_REVIEW_TABLE = "CREATE TABLE " + ReviewEntry.TABLE_NAME + " (" +
@@ -49,7 +55,7 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 TrailerEntry.COLUMN_KEY + " TEXT NOT NULL, " +
                 TrailerEntry.COLUMN_NAME + " TEXT NOT NULL, " +
                 TrailerEntry.COLUMN_SITE + " TEXT NOT NULL, " +
-                TrailerEntry.COLUMN_SIZE + " TEXT NOT NULL, " +
+                TrailerEntry.COLUMN_SIZE + " INTEGER NOT NULL, " +
                 TrailerEntry.COLUMN_TYPE + " TEXT NOT NULL, " +
                 // Set foreign key to movie table tmdb id
                 " FOREIGN KEY (" + TrailerEntry.COLUMN_MOVIE_ID + ") REFERENCES " +

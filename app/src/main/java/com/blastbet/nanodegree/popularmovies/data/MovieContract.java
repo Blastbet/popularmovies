@@ -35,11 +35,11 @@ public class MovieContract {
         // TMDB id for the movie
         public static final String COLUMN_MOVIE_ID    = "movie_id";
 
-        public static final String COLUMN_TITLE       = "title";
-        public static final String COLUMN_OVERVIEW    = "overview";
-        public static final String COLUMN_RUNTIME     = "runtime";
-        public static final String COLUMN_RELEASEDATE = "release_date";
-        public static final String COLUMN_VOTEAVERAGE = "vote_average";
+        public static final String COLUMN_TITLE        = "title";
+        public static final String COLUMN_OVERVIEW     = "overview";
+        public static final String COLUMN_RUNTIME      = "runtime";
+        public static final String COLUMN_RELEASE_DATE = "release_date";
+        public static final String COLUMN_VOTE_AVERAGE = "vote_average";
 
         public static final Uri buildMovieUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
