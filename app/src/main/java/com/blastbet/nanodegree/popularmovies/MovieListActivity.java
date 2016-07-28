@@ -12,12 +12,26 @@ import com.blastbet.nanodegree.popularmovies.tmdb.Movie;
 
 public class MovieListActivity extends AppCompatActivity implements MovieListFragment.MovieListCallback {
 
+    private boolean mTwoPane;
+    private static final String DETAILSFRAGMENT_TAG = "DF_TAG";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_list);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        if (findViewById(R.id.movie_details_container) != null) {
+            mTwoPane = true;
+            if (savedInstanceState != null) {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.movie_details_container, new MovieDetailsFragment, DETAILSFRAGMENT_TAG)
+                        .commit();
+            }
+        } else {
+            mTwoPane = false;
+            getSupportActionBar().setElevation(0f);
+        }
     }
 
     @Override
