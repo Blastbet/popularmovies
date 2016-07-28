@@ -5,11 +5,11 @@
     tools:context=".MovieListFragment"
     tools:showIn="@layout/activity_movie_list">
 
-    <GridView
+    <com.blastbet.nanodegree.popularmovies.AutofitRecyclerView
+        android:scrollbars="vertical"
+        android:id="@+id/grid_movies"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:stretchMode="columnWidth"
-        android:numColumns="auto_fit"
-        android:id="@+id/grid_movies" />
+        android:columnWidth="@dimen/movie_list_poster_width"/>
 
 </FrameLayout>
