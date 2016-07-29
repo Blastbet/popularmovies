@@ -73,16 +73,13 @@ public class MovieListFragment extends Fragment {
         RecyclerView movieGrid = (RecyclerView)rootView.findViewById(R.id.grid_movies);
         movieGrid.setHasFixedSize(true);
 
-        mAdapter = new MovieAdapter(getActivity(), R.layout.movielist_item, null);
-        movieGrid.setAdapter(mAdapter);
-
-        movieGrid.setClickable(true);
-        movieGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mAdapter = new MovieAdapter(R.layout.movielist_item, null, new MovieAdapter.OnMovieClickedListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                onMovieSelectedListener(position);
+            public void onClick(Movie movie) {
+                mCallback.onMovieSelectedListener(movie);
             }
         });
+        movieGrid.setAdapter(mAdapter);
 
         return rootView;
     }
@@ -138,12 +135,4 @@ public class MovieListFragment extends Fragment {
                 + " must implement MovieListCallbacks");
         }
     }
-
-    private void onMovieSelectedListener(int position) {
-        //Log.v("MovieListFragment", "onMovieSelectedListener (pos: " + position + "), movie:" + mAdapter.getItem(position));
-
-        Movie movie = (Movie) mAdapter.getItem(position);
-        mCallback.onMovieSelectedListener(movie);
-    }
-
 }

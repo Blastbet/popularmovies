@@ -25,7 +25,7 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
             mTwoPane = true;
             if (savedInstanceState != null) {
                 getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.movie_details_container, new MovieDetailsFragment, DETAILSFRAGMENT_TAG)
+                        .replace(R.id.movie_details_container, new MovieDetailsFragment(), DETAILSFRAGMENT_TAG)
                         .commit();
             }
         } else {
@@ -64,20 +64,15 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
      */
     public void onMovieSelectedListener(Movie movie) {
 
-        MovieDetailsFragment detailsFragment =
-                (MovieDetailsFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_movie_details);
-
         Log.v("MovieListActivity", "onMovieSelectedListener, movie:" + movie.getTitle());
-        if (detailsFragment == null) {
+        if (mTwoPane) {
+            Log.e("MovieListActivity", "Tablet layout for detailed view is not yet implemented!");
+        }
+        else {
             // Small display, phone e.g.
             Intent detailsIntent = new Intent(this, MovieDetailsActivity.class);
             detailsIntent.putExtra(getString(R.string.movie_extra), movie);
             startActivity(detailsIntent);
         }
-        else
-        {
-            Log.e("MovieListActivity", "Tablet layout for detailed view is not yet implemented!");
-        }
-
     }
 }
