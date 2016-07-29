@@ -24,6 +24,7 @@ import java.text.SimpleDateFormat;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -46,6 +47,8 @@ public class MovieDetailsFragment extends Fragment {
     private static final String ARG_MOVIE = "movie_details";
 
     private Movie mMovie;
+
+    private Unbinder mUnbinder = null;
 
     @BindView(R.id.text_movie_detail_title) TextView mTitleView;
     @BindView(R.id.text_movie_detail_description) TextView mOverviewView;
@@ -109,7 +112,7 @@ public class MovieDetailsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_movie_details, container, false);
-        ButterKnife.bind(rootView);
+        mUnbinder = ButterKnife.bind(this, rootView);
         final Movie movie = getActivity().getIntent().getParcelableExtra(getString(R.string.movie_extra));
         if (movie != null) {
             mMovie = movie;
@@ -164,6 +167,14 @@ public class MovieDetailsFragment extends Fragment {
             });
         }
         return rootView;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (mUnbinder != null) {
+            mUnbinder.unbind();
+        }
     }
 
     @Override
