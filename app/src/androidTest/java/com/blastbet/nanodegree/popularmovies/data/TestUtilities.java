@@ -23,6 +23,7 @@ public class TestUtilities extends AndroidTestCase {
         normalMovie.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, "This is a normal movie");
         normalMovie.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, "2016-01-01");
         normalMovie.put(MovieContract.MovieEntry.COLUMN_RUNTIME, "100");
+        normalMovie.put(MovieContract.MovieEntry.COLUMN_POSTER_PATH, "path");
         normalMovie.put(MovieContract.MovieEntry.COLUMN_TITLE, "Normal movie");
         normalMovie.put(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE, "3.0");
         return normalMovie;

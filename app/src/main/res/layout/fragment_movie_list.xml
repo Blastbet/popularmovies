@@ -5,11 +5,10 @@
     tools:context=".MovieListFragment"
     tools:showIn="@layout/activity_movie_list">
 
-    <com.blastbet.nanodegree.popularmovies.AutofitRecyclerView
+    <android.support.v7.widget.RecyclerView
         android:scrollbars="vertical"
         android:id="@+id/grid_movies"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:columnWidth="@dimen/movie_list_poster_width"/>
+        android:layout_height="match_parent"/>
 
 </FrameLayout>

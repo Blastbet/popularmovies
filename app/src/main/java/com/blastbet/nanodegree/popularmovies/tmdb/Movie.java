@@ -1,5 +1,6 @@
 package com.blastbet.nanodegree.popularmovies.tmdb;
 
+import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -62,6 +63,23 @@ public class Movie implements Parcelable{
     @SerializedName("runtime")
     @Expose
     private String runtime;
+
+    public Movie (
+            String posterPath,
+            int id,
+            String title,
+            String overview,
+            String runtime,
+            Date releaseDate,
+            String voteAvg) {
+        this.posterPath = posterPath;
+        this.id = id;
+        this.title = title;
+        this.overview = overview;
+        this.runtime = runtime;
+        this.releaseDate = releaseDate;
+        this.voteAverage = voteAvg;
+    }
 
     /** Parcelable support code */
     public Movie(Parcel in) {
@@ -221,5 +239,11 @@ public class Movie implements Parcelable{
 
     public void setRuntime(String runtime) {
         this.runtime = runtime;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        final Movie other = (Movie) o;
+        return (this.id == other.getId());
     }
 }

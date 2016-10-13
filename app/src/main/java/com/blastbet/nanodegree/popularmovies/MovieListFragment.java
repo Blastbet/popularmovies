@@ -1,46 +1,48 @@
 package com.blastbet.nanodegree.popularmovies;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.GridView;
-import android.widget.Toast;
 
-import com.blastbet.nanodegree.popularmovies.tmdb.MovieList;
-import com.blastbet.nanodegree.popularmovies.tmdb.MovieApi;
+import com.blastbet.nanodegree.popularmovies.data.MovieContract;
+import com.blastbet.nanodegree.popularmovies.sync.MovieSyncAdapter;
 import com.blastbet.nanodegree.popularmovies.tmdb.Movie;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
-
-public class MovieListFragment extends Fragment {
+public class MovieListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final String LOG_TAG = MovieListFragment.class.getSimpleName();
 
-    private MovieAdapter mAdapter = null;
+    private MovieCursorAdapter mAdapter = null;
+    private static final int MOVIE_LIST_LOADER = 0;
 
     private String mSortKey = null;
 
     private MovieListCallback mCallback;
 
-    private Retrofit mRetrofit;
-    private Call<MovieList> mMovieListCall;
-    private MovieApi mMovieApi;
-
     public interface MovieListCallback {
         void onMovieSelectedListener(Movie movie);
     }
+
+    private static final String[] MOVIE_COLUMNS = {
+        MovieContract.MovieEntry.TABLE_NAME + "." + MovieContract.MovieEntry._ID,
+        MovieContract.MovieEntry.COLUMN_MOVIE_ID,
+        MovieContract.MovieEntry.COLUMN_POSTER_PATH
+    };
+
+    //static final int COL_MOVIE_ROW_ID = 0;
+    static final int COL_MOVIE_MOVIE_ID = 1;
+    static final int COL_MOVIE_POSTER_PATH = 2;
 
     public MovieListFragment() {
     }
@@ -56,14 +58,6 @@ public class MovieListFragment extends Fragment {
 
         mSortKey = PreferenceManager.getDefaultSharedPreferences(getActivity())
                 .getString(getString(R.string.pref_sort_by_key), getString(R.string.pref_sort_by_default));
-
-        mRetrofit = new Retrofit.Builder()
-                .addConverterFactory(GsonConverterFactory.create())
-                .baseUrl(MOVIEDB_BASE_URL)
-                .build();
-
-        mMovieApi = mRetrofit.create(MovieApi.class);
-        fetchMovies(mSortKey);
     }
 
     @Override
@@ -71,57 +65,17 @@ public class MovieListFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_movie_list, container, false);
         RecyclerView movieGrid = (RecyclerView)rootView.findViewById(R.id.grid_movies);
-        movieGrid.setHasFixedSize(true);
-
-        mAdapter = new MovieAdapter(R.layout.movielist_item, null, new MovieAdapter.OnMovieClickedListener() {
+        //movieGrid.setHasFixedSize(true);
+        movieGrid.setLayoutManager(new GridLayoutManager(getContext(), 3));
+        mAdapter = new MovieCursorAdapter(getContext(), null, R.layout.movielist_item, new MovieCursorAdapter.OnMovieClickedListener() {
             @Override
-            public void onClick(Movie movie) {
+            public void onClick(int movieId) {
                 mCallback.onMovieSelectedListener(movie);
             }
         });
         movieGrid.setAdapter(mAdapter);
 
         return rootView;
-    }
-
-    /**
-     * Updates the movie listing in case the sort order has been changed.
-     */
-    private void updateSortOrder() {
-        final String sortKey = PreferenceManager.getDefaultSharedPreferences(getActivity())
-                .getString(getString(R.string.pref_sort_by_key), getString(R.string.pref_sort_by_default));
-
-        if (sortKey != mSortKey)
-        {
-            mSortKey = sortKey;
-            fetchMovies(sortKey);
-        }
-    }
-
-    private Callback<MovieList> mMovieListResponseCallback = new Callback<MovieList>() {
-        @Override
-        public void onResponse(Call<MovieList> call, Response<MovieList> response) {
-            MovieList movieList = response.body();
-            mAdapter.setNewMovies(movieList.getMovieList());
-        }
-
-        @Override
-        public void onFailure(Call<MovieList> call, Throwable t) {
-            Log.e(LOG_TAG, "Failed to fetch movie list! " + t.getMessage());
-            Toast.makeText(getContext(), "Failed to fetch movie list!", Toast.LENGTH_LONG).show();
-        }
-    };
-
-    private void fetchMovies(String sortKey) {
-        mMovieListCall = mMovieApi.getMovieList(sortKey, BuildConfig.THEMOVIEDB_API_KEY);
-        mMovieListCall.enqueue(mMovieListResponseCallback);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        /** Check the sort order when ever resuming */
-        updateSortOrder();
     }
 
     @Override
@@ -132,7 +86,51 @@ public class MovieListFragment extends Fragment {
             mCallback = (MovieListCallback) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString()
-                + " must implement MovieListCallbacks");
+                    + " must implement MovieListCallbacks");
         }
+    }
+
+    /**
+     * Updates the movie listing in case the sort order has been changed.
+     */
+    private void updateSortOrder() {
+        final String sortKey = PreferenceManager.getDefaultSharedPreferences(getActivity())
+                .getString(getString(R.string.pref_sort_by_key), getString(R.string.pref_sort_by_default));
+
+        if (sortKey != mSortKey) {
+            mSortKey = sortKey;
+            updateMovies();
+        }
+    }
+
+    public void updateMovies() {
+        MovieSyncAdapter.syncNow(getActivity());
+        getLoaderManager().restartLoader(MOVIE_LIST_LOADER, null, this);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        Uri uri;
+        if (mSortKey.equalsIgnoreCase("popular")) {
+            uri = MovieContract.PopularEntry.CONTENT_URI;
+        } else if (mSortKey.equalsIgnoreCase("top_rated")){
+            uri = MovieContract.TopRatedEntry.CONTENT_URI;
+        } else if (mSortKey.equalsIgnoreCase("favorites")){
+            uri = MovieContract.FavoriteEntry.CONTENT_URI;
+        } else {
+            throw new UnsupportedOperationException("Unsupported movie list selection (" + mSortKey + ")");
+        }
+
+        return new CursorLoader(getActivity(), uri, MOVIE_COLUMNS, null, null, "_id ASC");
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        mAdapter.swapCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mAdapter.swapCursor(null);
     }
 }

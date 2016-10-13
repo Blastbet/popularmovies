@@ -55,6 +55,7 @@ public class TestDB extends AndroidTestCase {
         columns.add(MovieContract.MovieEntry.COLUMN_OVERVIEW);
         columns.add(MovieContract.MovieEntry.COLUMN_RELEASE_DATE);
         columns.add(MovieContract.MovieEntry.COLUMN_RUNTIME);
+        columns.add(MovieContract.MovieEntry.COLUMN_POSTER_PATH);
         columns.add(MovieContract.MovieEntry.COLUMN_TITLE);
         columns.add(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE);
 

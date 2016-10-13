@@ -6,15 +6,18 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
+import android.util.Log;
 
 /**
  * Created by ilkka on 28.7.2016.
- *
+ * <p/>
  * RecyclerView extended with auto fit support. Auto fit extension
  * http://blog.sqisland.com/2014/12/recyclerview-autofit-grid.html
  */
 
 public class AutofitRecyclerView extends RecyclerView {
+    private static final String LOG_TAG = AutofitRecyclerView.class.getSimpleName();
+
     private GridLayoutManager mLayoutManager;
     private int mColumnWidth = -1;
 
@@ -51,8 +54,11 @@ public class AutofitRecyclerView extends RecyclerView {
     protected void onMeasure(int widthSpec, int heightSpec) {
         super.onMeasure(widthSpec, heightSpec);
         if (mColumnWidth > 0) {
-            final int spanCount = Math.max(1, getMeasuredHeight() / mColumnWidth);
+            final int spanCount = (getMeasuredWidth() / mColumnWidth) + 1;
+
             mLayoutManager.setSpanCount(spanCount);
+
+            //Log.v(LOG_TAG,  "onMeasure( " + widthSpec + ", " + heightSpec + " -> " + getMeasuredWidth() + "x" + getMeasuredHeight());
         }
     }
 

@@ -12,6 +12,8 @@ import com.blastbet.nanodegree.popularmovies.tmdb.Movie;
 
 public class MovieListActivity extends AppCompatActivity implements MovieListFragment.MovieListCallback {
 
+    private static final String LOG_TAG = MovieListActivity.class.getSimpleName();
+
     private boolean mTwoPane;
     private static final String DETAILSFRAGMENT_TAG = "DF_TAG";
 
@@ -23,15 +25,30 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
         setSupportActionBar(toolbar);
         if (findViewById(R.id.movie_details_container) != null) {
             mTwoPane = true;
+            Log.v(LOG_TAG, "Two pane mode.");
             if (savedInstanceState != null) {
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.movie_details_container, new MovieDetailsFragment(), DETAILSFRAGMENT_TAG)
                         .commit();
             }
         } else {
+            Log.v(LOG_TAG, "Single pane mode.");
             mTwoPane = false;
             getSupportActionBar().setElevation(0f);
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        MovieListFragment mlf = (MovieListFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_movie_list);
+        if (mlf != null) {
+            //mlf.
+        }
+
+        MovieDetailsFragment mdf = (MovieDetailsFragment) getSupportFragmentManager().findFragmentByTag(DETAILSFRAGMENT_TAG);
+
     }
 
     @Override
@@ -66,7 +83,16 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
 
         Log.v("MovieListActivity", "onMovieSelectedListener, movie:" + movie.getTitle());
         if (mTwoPane) {
+            Bundle args = new Bundle();
+            args.putParcelable(getString(R.string.movie_extra), movie);
             Log.e("MovieListActivity", "Tablet layout for detailed view is not yet implemented!");
+            MovieDetailsFragment detailsFragment = new MovieDetailsFragment();
+            detailsFragment.setArguments(args);
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.movie_details_container, detailsFragment, DETAILSFRAGMENT_TAG)
+                    .commit();
+
         }
         else {
             // Small display, phone e.g.

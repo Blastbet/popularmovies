@@ -3,8 +3,11 @@ package com.blastbet.nanodegree.popularmovies;
 import android.content.Context;
 import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.util.Log;
+import android.widget.ImageView;
 
 import com.blastbet.nanodegree.popularmovies.tmdb.Movie;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -13,17 +16,25 @@ import com.squareup.picasso.Target;
  */
 public class MoviePosterLoader {
 
+    private static final String LOG_TAG = MoviePosterLoader.class.getSimpleName();
+
     private static final String TMDB_BASE_IMAGE_URL = "http://image.tmdb.org/t/p/";
     private static final String API_KEY_PARAM = "api_key";
 
     private Context mContext;
-    private Movie mMovie;
+
+    private String mPosterPath;
 
     private Target mTarget;
 
     MoviePosterLoader(Context context, Movie movie) {
         mContext = context;
-        mMovie = movie;
+        mPosterPath = movie.getPosterPath();
+    }
+
+    MoviePosterLoader(Context context, String posterPath) {
+        mContext = context;
+        mPosterPath = posterPath;
     }
 
     private Uri getURI() {
@@ -34,16 +45,26 @@ public class MoviePosterLoader {
         StringBuilder sb = new StringBuilder(TMDB_BASE_IMAGE_URL);
         sb.append(size);
         sb.append('/');
-        sb.append(mMovie.getPosterPath());
+        sb.append(mPosterPath);
         return Uri.parse(sb.toString()).buildUpon()
                 .appendQueryParameter(API_KEY_PARAM, BuildConfig.THEMOVIEDB_API_KEY)
                 .build();
     }
 
+    public void loadMoviePoster(final ImageView view, final Callback callback) {
+        final Uri uri = getURI();
+        Picasso.with(mContext)
+                .load(uri)
+                .fit()
+                .into(view, callback);
+    }
+
     public void loadMoviePoster(Target target) {
         mTarget = target;
+        final Uri uri = getURI();
+        Log.v(LOG_TAG, "Starting to load movie poster from: " + uri.toString());
         Picasso.with(mContext)
-                .load(getURI())
+                .load(uri)
                 .into(target);
     }
 

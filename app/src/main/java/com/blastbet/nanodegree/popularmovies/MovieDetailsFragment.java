@@ -110,16 +110,22 @@ public class MovieDetailsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        Movie movie = null;
+
+        Bundle args = getArguments();
+        if (args != null) {
+            movie = args.getParcelable(getString(R.string.movie_extra));
+        } else {
+            movie = getActivity().getIntent().getParcelableExtra(getString(R.string.movie_extra));
+        }
+
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_movie_details, container, false);
         mUnbinder = ButterKnife.bind(this, rootView);
-        final Movie movie = getActivity().getIntent().getParcelableExtra(getString(R.string.movie_extra));
-        if (movie != null) {
-            mMovie = movie;
-        }
 
 
-        if (mMovie == null)
+        if (movie == null)
         {
             /** Set dummy data if we for some reason did not have the movie details here */
             mTitleView.setText("---");
@@ -129,6 +135,8 @@ public class MovieDetailsFragment extends Fragment {
             mRatingView.setText("---");
             mPosterView.setBackgroundColor(Color.GRAY);
         } else {
+            mMovie = movie;
+
             /** Populate the view with the movie details */
             mTitleView.setText(movie.getTitle());
             mOverviewView.setText(movie.getOverview());

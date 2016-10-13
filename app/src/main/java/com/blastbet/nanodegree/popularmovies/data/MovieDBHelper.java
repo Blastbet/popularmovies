@@ -7,6 +7,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 import com.blastbet.nanodegree.popularmovies.data.MovieContract.MovieEntry;
 import com.blastbet.nanodegree.popularmovies.data.MovieContract.ReviewEntry;
 import com.blastbet.nanodegree.popularmovies.data.MovieContract.TrailerEntry;
+import com.blastbet.nanodegree.popularmovies.data.MovieContract.PopularEntry;
+import com.blastbet.nanodegree.popularmovies.data.MovieContract.TopRatedEntry;
+import com.blastbet.nanodegree.popularmovies.data.MovieContract.FavoriteEntry;
 
 /**
  * Created by ilkka on 18.6.2016.
@@ -33,11 +36,31 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 MovieEntry._ID + " INTEGER PRIMARY KEY, " +
                 MovieEntry.COLUMN_MOVIE_ID + " INTEGER UNIQUE NOT NULL, " +
                 MovieEntry.COLUMN_TITLE + " TEXT NOT NULL, " +
+                MovieEntry.COLUMN_POSTER_PATH + " TEXT NOT NULL," +
                 MovieEntry.COLUMN_OVERVIEW + " TEXT NOT NULL, " +
                 MovieEntry.COLUMN_RUNTIME + " TEXT NOT NULL, " +
                 MovieEntry.COLUMN_RELEASE_DATE + " INTEGER NOT NULL, " +
                 MovieEntry.COLUMN_VOTE_AVERAGE + " TEXT NOT NULL" +
                 " );";
+
+        final String SQL_CREATE_POPULAR_MOVIE_TABLE = "CREATE TABLE " + PopularEntry.TABLE_NAME + " (" +
+                MovieEntry._ID + " INTEGER PRIMARY KEY, " +
+                " FOREIGN KEY (" + ReviewEntry.COLUMN_MOVIE_ID + ") REFERENCES " +
+                MovieEntry.TABLE_NAME + " (" + MovieEntry.COLUMN_MOVIE_ID + ")" +
+                " );";
+
+        final String SQL_CREATE_TOP_RATED_MOVIE_TABLE = "CREATE TABLE " + TopRatedEntry.TABLE_NAME + " (" +
+                MovieEntry._ID + " INTEGER PRIMARY KEY, " +
+                " FOREIGN KEY (" + ReviewEntry.COLUMN_MOVIE_ID + ") REFERENCES " +
+                MovieEntry.TABLE_NAME + " (" + MovieEntry.COLUMN_MOVIE_ID + ")" +
+                " );";
+
+        final String SQL_CREATE_FAVORITE_MOVIE_TABLE = "CREATE TABLE " + FavoriteEntry.TABLE_NAME + " (" +
+                MovieEntry._ID + " INTEGER PRIMARY KEY, " +
+                " FOREIGN KEY (" + ReviewEntry.COLUMN_MOVIE_ID + ") REFERENCES " +
+                MovieEntry.TABLE_NAME + " (" + MovieEntry.COLUMN_MOVIE_ID + ")" +
+                " );";
+
 
         final String SQL_CREATE_REVIEW_TABLE = "CREATE TABLE " + ReviewEntry.TABLE_NAME + " (" +
                 ReviewEntry._ID + " INTEGER PRIMARY KEY, " +
@@ -64,6 +87,9 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 ") ON CONFLICT REPLACE);";
 
         db.execSQL(SQL_CREATE_MOVIE_TABLE);
+        db.execSQL(SQL_CREATE_POPULAR_MOVIE_TABLE);
+        db.execSQL(SQL_CREATE_TOP_RATED_MOVIE_TABLE);
+        db.execSQL(SQL_CREATE_FAVORITE_MOVIE_TABLE);
         db.execSQL(SQL_CREATE_REVIEW_TABLE);
         db.execSQL(SQL_CREATE_TRAILER_TABLE);
     }
@@ -71,10 +97,11 @@ public class MovieDBHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + MovieEntry.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + PopularEntry.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + TopRatedEntry.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + FavoriteEntry.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + ReviewEntry.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TrailerEntry.TABLE_NAME);
         onCreate(db);
     }
-
-
 }

@@ -76,9 +76,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/movie_detail_info_field_height"
                 android:text="@string/mark_as_favorite"
-                android:capitalize="characters"
-                android:visibility="gone" />
-
+                android:id="@+id/button_mark_as_favorite"/>
         </LinearLayout>
     </LinearLayout>
     <TextView
@@ -96,4 +94,19 @@
         android:background="@android:color/black"
         android:layout_marginLeft="@dimen/activity_horizontal_margin"
         android:layout_marginRight="@dimen/activity_horizontal_margin"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Trailers:"
+        android:layout_gravity="left"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="10dp" />
+
+    <ListView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/listView" />
 </LinearLayout>
