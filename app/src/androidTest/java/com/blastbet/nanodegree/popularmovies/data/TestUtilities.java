@@ -17,7 +17,7 @@ import java.util.Set;
 public class TestUtilities extends AndroidTestCase {
     private static final String LOG_TAG = TestUtilities.class.getSimpleName();
 
-    static ContentValues createNormalMovie(int movieId) {
+    static ContentValues createNormalMovie(long movieId) {
         ContentValues normalMovie = new ContentValues();
         normalMovie.put(MovieContract.MovieEntry.COLUMN_MOVIE_ID, movieId);
         normalMovie.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, "This is a normal movie");
@@ -29,7 +29,7 @@ public class TestUtilities extends AndroidTestCase {
         return normalMovie;
     }
 
-    static ContentValues createNormalReview(int movieId) {
+    static ContentValues createNormalReview(long movieId) {
         ContentValues normalReview = new ContentValues();
         normalReview.put(MovieContract.ReviewEntry.COLUMN_MOVIE_ID, movieId);
         normalReview.put(MovieContract.ReviewEntry.COLUMN_AUTHOR, "Norma Normal");
@@ -37,7 +37,7 @@ public class TestUtilities extends AndroidTestCase {
         return normalReview;
     }
 
-    static ContentValues createNormalTrailer(int movieId) {
+    static ContentValues createNormalTrailer(long movieId) {
         ContentValues normalTrailer = new ContentValues();
         normalTrailer.put(MovieContract.TrailerEntry.COLUMN_MOVIE_ID, movieId);
         normalTrailer.put(MovieContract.TrailerEntry.COLUMN_KEY, "normal-key");
@@ -74,17 +74,17 @@ public class TestUtilities extends AndroidTestCase {
         return rowId;
     }
 
-    static long insertNormalMovie(Context context, int movieId) {
+    static long insertNormalMovie(Context context, long movieId) {
         ContentValues content = createNormalMovie(movieId);
         return insertContent(context, "normal movie", MovieContract.MovieEntry.TABLE_NAME, content);
     }
 
-    static long insertNormalReview(Context context, int movieId) {
+    static long insertNormalReview(Context context, long movieId) {
         ContentValues content = createNormalReview(movieId);
         return insertContent(context, "normal review", MovieContract.ReviewEntry.TABLE_NAME, content);
     }
 
-    static long insertNormalTrailer(Context context, int movieId) {
+    static long insertNormalTrailer(Context context, long movieId) {
         ContentValues content = createNormalTrailer(movieId);
         return insertContent(context, "normal trailer", MovieContract.TrailerEntry.TABLE_NAME, content);
     }

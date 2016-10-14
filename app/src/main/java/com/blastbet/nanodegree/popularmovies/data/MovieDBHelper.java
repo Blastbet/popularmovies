@@ -44,20 +44,23 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 " );";
 
         final String SQL_CREATE_POPULAR_MOVIE_TABLE = "CREATE TABLE " + PopularEntry.TABLE_NAME + " (" +
-                MovieEntry._ID + " INTEGER PRIMARY KEY, " +
-                " FOREIGN KEY (" + ReviewEntry.COLUMN_MOVIE_ID + ") REFERENCES " +
+                PopularEntry._ID + " INTEGER PRIMARY KEY, " +
+                PopularEntry.COLUMN_MOVIE_ID + " INTEGER UNIQUE NOT NULL, " +
+                " FOREIGN KEY (" + PopularEntry.COLUMN_MOVIE_ID + ") REFERENCES " +
                 MovieEntry.TABLE_NAME + " (" + MovieEntry.COLUMN_MOVIE_ID + ")" +
                 " );";
 
         final String SQL_CREATE_TOP_RATED_MOVIE_TABLE = "CREATE TABLE " + TopRatedEntry.TABLE_NAME + " (" +
-                MovieEntry._ID + " INTEGER PRIMARY KEY, " +
-                " FOREIGN KEY (" + ReviewEntry.COLUMN_MOVIE_ID + ") REFERENCES " +
+                TopRatedEntry._ID + " INTEGER PRIMARY KEY, " +
+                TopRatedEntry.COLUMN_MOVIE_ID + " INTEGER UNIQUE NOT NULL, " +
+                " FOREIGN KEY (" + TopRatedEntry.COLUMN_MOVIE_ID + ") REFERENCES " +
                 MovieEntry.TABLE_NAME + " (" + MovieEntry.COLUMN_MOVIE_ID + ")" +
                 " );";
 
         final String SQL_CREATE_FAVORITE_MOVIE_TABLE = "CREATE TABLE " + FavoriteEntry.TABLE_NAME + " (" +
-                MovieEntry._ID + " INTEGER PRIMARY KEY, " +
-                " FOREIGN KEY (" + ReviewEntry.COLUMN_MOVIE_ID + ") REFERENCES " +
+                FavoriteEntry._ID + " INTEGER PRIMARY KEY, " +
+                FavoriteEntry.COLUMN_MOVIE_ID + " INTEGER UNIQUE NOT NULL, " +
+                " FOREIGN KEY (" + FavoriteEntry.COLUMN_MOVIE_ID + ") REFERENCES " +
                 MovieEntry.TABLE_NAME + " (" + MovieEntry.COLUMN_MOVIE_ID + ")" +
                 " );";
 

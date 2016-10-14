@@ -9,14 +9,16 @@ import android.view.MenuItem;
 
 import com.blastbet.nanodegree.popularmovies.tmdb.Movie;
 
+import java.security.InvalidParameterException;
+
 public class MovieDetailsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_details);
-        final Movie movie = getIntent().getParcelableExtra(getString(R.string.movie_extra));
-        MovieDetailsFragment fragment = MovieDetailsFragment.newInstance(movie);
+        final long movieId = getIntent().getLongExtra(MovieDetailsFragment.EXTRA_MOVIE_ID_KEY, -1);
+        MovieDetailsFragment fragment = MovieDetailsFragment.newInstance(movieId);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.movie_details_container, fragment)

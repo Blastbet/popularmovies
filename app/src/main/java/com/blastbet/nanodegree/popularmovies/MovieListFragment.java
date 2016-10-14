@@ -12,6 +12,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,13 +32,13 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
     private MovieListCallback mCallback;
 
     public interface MovieListCallback {
-        void onMovieSelectedListener(Movie movie);
+        void onMovieSelectedListener(long movieId);
     }
 
     private static final String[] MOVIE_COLUMNS = {
         MovieContract.MovieEntry.TABLE_NAME + "." + MovieContract.MovieEntry._ID,
-        MovieContract.MovieEntry.COLUMN_MOVIE_ID,
-        MovieContract.MovieEntry.COLUMN_POSTER_PATH
+        MovieContract.MovieEntry.TABLE_NAME + "." + MovieContract.MovieEntry.COLUMN_MOVIE_ID,
+        MovieContract.MovieEntry.TABLE_NAME + "." + MovieContract.MovieEntry.COLUMN_POSTER_PATH
     };
 
     //static final int COL_MOVIE_ROW_ID = 0;
@@ -69,8 +70,8 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
         movieGrid.setLayoutManager(new GridLayoutManager(getContext(), 3));
         mAdapter = new MovieCursorAdapter(getContext(), null, R.layout.movielist_item, new MovieCursorAdapter.OnMovieClickedListener() {
             @Override
-            public void onClick(int movieId) {
-                mCallback.onMovieSelectedListener(movie);
+            public void onClick(long movieId) {
+                mCallback.onMovieSelectedListener(movieId);
             }
         });
         movieGrid.setAdapter(mAdapter);
@@ -103,6 +104,13 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
         }
     }
 
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        Log.d(LOG_TAG, "Activity created, Creating the loader.");
+        getLoaderManager().initLoader(MOVIE_LIST_LOADER, null, this);
+        super.onActivityCreated(savedInstanceState);
+    }
+
     public void updateMovies() {
         MovieSyncAdapter.syncNow(getActivity());
         getLoaderManager().restartLoader(MOVIE_LIST_LOADER, null, this);
@@ -121,7 +129,9 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
             throw new UnsupportedOperationException("Unsupported movie list selection (" + mSortKey + ")");
         }
 
-        return new CursorLoader(getActivity(), uri, MOVIE_COLUMNS, null, null, "_id ASC");
+        final String sortOrder = MovieContract.MovieEntry.TABLE_NAME +
+                "." + MovieContract.MovieEntry._ID + " ASC";
+        return new CursorLoader(getActivity(), uri, MOVIE_COLUMNS, null, null, sortOrder);
     }
 
     @Override

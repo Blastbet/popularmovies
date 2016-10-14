@@ -89,6 +89,15 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
         return cValues;
     }
 
+    private void fetchMovieDetails(Movie movie) {
+        Call<Movie> movieCall = mMovieApi.getMovieDetails(movie.getId(), BuildConfig.THEMOVIEDB_API_KEY);
+        try {
+            final Movie detailedMovie = movieCall.execute().body();
+            movie.setRuntime(detailedMovie.getRuntime());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     private MovieList fetchMovies(String sortKey) {
         mMovieListCall = mMovieApi.getMovieList(sortKey, BuildConfig.THEMOVIEDB_API_KEY);
@@ -98,6 +107,12 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        List<Movie> movies = movieList.getMovieList();
+        for (Movie movie : movies) {
+            fetchMovieDetails(movie);
+        }
+
         return movieList;
     }
 

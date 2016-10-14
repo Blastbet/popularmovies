@@ -32,7 +32,7 @@ public class MovieCursorAdapter extends CursorRecyclerViewAdapter<MovieCursorAda
     }
 
     public interface OnMovieClickedListener {
-        public void onClick(int movieId);
+        public void onClick(long movieId);
     }
 
     public static class ViewHolder
@@ -43,13 +43,13 @@ public class MovieCursorAdapter extends CursorRecyclerViewAdapter<MovieCursorAda
         View mRootView = null;
         View mLoadView = null;
         Target mTarget = null;
-        int mMovieId = -1;
+        long mMovieId = -1;
 
         OnItemClickListener mListener = null;
         public static int itemCount = 1;
 
         public interface OnItemClickListener {
-            public void onClick(int position);
+            public void onClick(long position);
         }
 
         public ViewHolder(View rootView,
@@ -125,7 +125,7 @@ public class MovieCursorAdapter extends CursorRecyclerViewAdapter<MovieCursorAda
 
         ViewHolder holder = new ViewHolder(v, imageView, loader, target, new ViewHolder.OnItemClickListener() {
             @Override
-            public void onClick(int position) {
+            public void onClick(long position) {
                 mListener.onClick(position);
             }
         });
@@ -137,7 +137,7 @@ public class MovieCursorAdapter extends CursorRecyclerViewAdapter<MovieCursorAda
     public void onBindViewHolder(ViewHolder viewHolder, Cursor cursor) {
         final String posterPath = cursor.getString(MovieListFragment.COL_MOVIE_POSTER_PATH);
 
-        viewHolder.mMovieId = cursor.getInt(MovieListFragment.COL_MOVIE_MOVIE_ID);
+        viewHolder.mMovieId = cursor.getLong(MovieListFragment.COL_MOVIE_MOVIE_ID);
         viewHolder.mImageView.setVisibility(View.VISIBLE);
         viewHolder.mImageView.setBackgroundColor(Color.BLUE);
 /*        holder.mLoadView.setVisibility(View.GONE);

@@ -18,7 +18,8 @@ public class MovieProvider extends ContentProvider {
     MovieDBHelper mOpenHelper;
 
     private static final int MOVIE = 100;
-    private static final int MOVIE_WITH_REVIEW_AND_TRAILER = 101;
+    private static final int MOVIE_WITH_ID = 101;
+
     private static final int POPULAR_MOVIE = 200;
     private static final int FAVORITE_MOVIE = 300;
     private static final int TOP_RATED_MOVIE = 400;
@@ -31,13 +32,15 @@ public class MovieProvider extends ContentProvider {
         final String AUTHORITY = MovieContract.CONTENT_AUTHORITY;
 
         matcher.addURI(AUTHORITY, MovieContract.PATH_MOVIE          , MOVIE);
+
         matcher.addURI(AUTHORITY, MovieContract.PATH_FAVORITE_MOVIE , FAVORITE_MOVIE);
         matcher.addURI(AUTHORITY, MovieContract.PATH_POPULAR_MOVIE  , POPULAR_MOVIE);
         matcher.addURI(AUTHORITY, MovieContract.PATH_TOP_RATED_MOVIE, TOP_RATED_MOVIE);
+
         matcher.addURI(AUTHORITY, MovieContract.PATH_REVIEW         , REVIEW);
         matcher.addURI(AUTHORITY, MovieContract.PATH_TRAILER        , TRAILER);
 
-        matcher.addURI(AUTHORITY, MovieContract.PATH_MOVIE + "/*/*" , MOVIE_WITH_REVIEW_AND_TRAILER);
+        matcher.addURI(AUTHORITY, MovieContract.PATH_MOVIE + "/#"   , MOVIE_WITH_ID);
 
         return matcher;
     }
@@ -100,17 +103,17 @@ public class MovieProvider extends ContentProvider {
         );
     }
 
+    private static final String sMovieIdSelection =
+            MovieContract.MovieEntry.TABLE_NAME + "." + MovieContract.MovieEntry.COLUMN_MOVIE_ID +
+                    " = ? ";
+
     @Override
     public boolean onCreate() {
         mOpenHelper = new MovieDBHelper(getContext());
         return true;
     }
 
-/*
-    private Cursor getMovieWithReviewAndTrailer(Uri uri, String[] projection, String sortOrder) {
-        return sMovieWithReviewAndTrailerQueryBuilder.query(mOpenHelper.getReadableDatabase(), projection)
-    }
-*/
+
     @Nullable
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
@@ -134,14 +137,15 @@ public class MovieProvider extends ContentProvider {
                 retCursor = sTopRatedMoviesQueryBuilder.query(
                         db, projection, selection, selectionArgs, null, null, sortOrder);
                 break;
-            case MOVIE_WITH_REVIEW_AND_TRAILER:
-                retCursor = sMovieWithReviewAndTrailerQueryBuilder.query(
-                        db, projection, selection, selectionArgs, null, null, sortOrder);
+            case MOVIE_WITH_ID:
+                long movieId = MovieContract.MovieEntry.getIdFromUri(uri);
+                retCursor = db.query(MovieContract.MovieEntry.TABLE_NAME,
+                        projection, sMovieIdSelection, new String[]{Long.toString(movieId)},
+                        null, null, sortOrder);
                 break;
             default:
                 throw new UnsupportedOperationException("Unsupported uri: " + uri);
         }
-
         return retCursor;
     }
 
@@ -151,6 +155,8 @@ public class MovieProvider extends ContentProvider {
         final int match = sUriMatcher.match(uri);
         switch (match) {
             case MOVIE:
+                return MovieContract.MovieEntry.CONTENT_TYPE;
+            case MOVIE_WITH_ID:
                 return MovieContract.MovieEntry.CONTENT_ITEM_TYPE;
             case FAVORITE_MOVIE:
                 return MovieContract.FavoriteEntry.CONTENT_TYPE;
@@ -162,8 +168,6 @@ public class MovieProvider extends ContentProvider {
                 return MovieContract.ReviewEntry.CONTENT_TYPE;
             case TRAILER:
                 return MovieContract.TrailerEntry.CONTENT_TYPE;
-            case MOVIE_WITH_REVIEW_AND_TRAILER:
-                return MovieContract.MovieEntry.CONTENT_TYPE;
             default:
                 throw new UnsupportedOperationException("Unsupported uri: " + uri);
         }

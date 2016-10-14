@@ -44,7 +44,7 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
 
         MovieListFragment mlf = (MovieListFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_movie_list);
         if (mlf != null) {
-            //mlf.
+            mlf.updateMovies();
         }
 
         MovieDetailsFragment mdf = (MovieDetailsFragment) getSupportFragmentManager().findFragmentByTag(DETAILSFRAGMENT_TAG);
@@ -77,15 +77,14 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
 
     /**
      * Handler for clicks on the movie posters. Brings up the detail view for the movie
-     * @param movie The movie data to show.
+     * @param movieId The id of the movie for which to show details.
      */
-    public void onMovieSelectedListener(Movie movie) {
+    public void onMovieSelectedListener(long movieId) {
+        Log.v("MovieListActivity", "onMovieSelectedListener, movie with id:" + movieId);
 
-        Log.v("MovieListActivity", "onMovieSelectedListener, movie:" + movie.getTitle());
         if (mTwoPane) {
             Bundle args = new Bundle();
-            args.putParcelable(getString(R.string.movie_extra), movie);
-            Log.e("MovieListActivity", "Tablet layout for detailed view is not yet implemented!");
+            args.putLong(MovieDetailsFragment.EXTRA_MOVIE_ID_KEY, movieId);
             MovieDetailsFragment detailsFragment = new MovieDetailsFragment();
             detailsFragment.setArguments(args);
 
@@ -97,7 +96,7 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
         else {
             // Small display, phone e.g.
             Intent detailsIntent = new Intent(this, MovieDetailsActivity.class);
-            detailsIntent.putExtra(getString(R.string.movie_extra), movie);
+            detailsIntent.putExtra(MovieDetailsFragment.EXTRA_MOVIE_ID_KEY, movieId);
             startActivity(detailsIntent);
         }
     }

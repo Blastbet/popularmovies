@@ -14,6 +14,7 @@ public class MovieContract {
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
     public static final String PATH_MOVIE = "movie";
+
     public static final String PATH_REVIEW = "review";
     public static final String PATH_TRAILER = "trailer";
 
@@ -44,8 +45,16 @@ public class MovieContract {
         public static final String COLUMN_RELEASE_DATE = "release_date";
         public static final String COLUMN_VOTE_AVERAGE = "vote_average";
 
-        public static final Uri buildMovieUri(long id) {
+        public static Uri buildMovieUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
+
+        public static Uri buildMovieWithIdUri(long movieId) {
+            return CONTENT_URI.buildUpon().appendPath(Long.toString(movieId)).build();
+        }
+
+        public static Long getIdFromUri(Uri uri) {
+            return Long.parseLong(uri.getPathSegments().get(1));
         }
     }
 
@@ -128,8 +137,12 @@ public class MovieContract {
         public static final String COLUMN_AUTHOR      = "author";
         public static final String COLUMN_CONTENT     = "content";
 
-        public static final Uri buildReviewUri(long id) {
+        public static Uri buildReviewUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
+
+        public static Uri buildReviewWithMovieIdUri(long movieId) {
+            return CONTENT_URI.buildUpon().appendPath(Long.toString(movieId)).build();
         }
     }
 
@@ -155,8 +168,12 @@ public class MovieContract {
         public static final String COLUMN_SIZE        = "size";
         public static final String COLUMN_TYPE        = "type";
 
-        public static final Uri buildTrailerUri(long id) {
+        public static Uri buildTrailerUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
+
+        public static Uri buildTrailerWithMovieIdUri(long movieId) {
+            return CONTENT_URI.buildUpon().appendPath(Long.toString(movieId)).build();
         }
     }
 
