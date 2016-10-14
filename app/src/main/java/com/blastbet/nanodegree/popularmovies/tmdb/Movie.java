@@ -64,6 +64,9 @@ public class Movie implements Parcelable{
     @Expose
     private String runtime;
 
+    private List<MovieTrailer> mTrailers;
+    private List<MovieReview> mReviews;
+
     public Movie (
             String posterPath,
             int id,
@@ -240,6 +243,23 @@ public class Movie implements Parcelable{
     public void setRuntime(String runtime) {
         this.runtime = runtime;
     }
+
+    public void setTrailers(List<MovieTrailer> trailers) {
+        mTrailers = trailers;
+    }
+
+    public List<MovieTrailer> getTrailers() {
+        return mTrailers;
+    }
+
+    public void setReviews(List<MovieReview> trailers) {
+        mReviews = trailers;
+    }
+
+    public List<MovieReview> getReviews() {
+        return mReviews;
+    }
+
 
     @Override
     public boolean equals(Object o) {

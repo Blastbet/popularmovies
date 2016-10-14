@@ -16,8 +16,8 @@ public interface MovieApi {
     public Call<Movie> getMovieDetails(@Path("id") long movieId, @Query("api_key") String apiKey);
 
     @GET("movie/{id}/videos")
-    public Call<MovieTrailerList> getMovieTrailers(@Path("id") int movieId, @Query("api_key") String apiKey);
+    public Call<MovieTrailerList> getMovieTrailers(@Path("id") long movieId, @Query("api_key") String apiKey);
 
     @GET("movie/{id}/reviews")
-    public Call<MovieReviewList> getMovieReviews(@Path("id") int movieId, @Query("api_key") String apiKey);
+    public Call<MovieReviewList> getMovieReviews(@Path("id") long movieId, @Query("api_key") String apiKey);
 }
