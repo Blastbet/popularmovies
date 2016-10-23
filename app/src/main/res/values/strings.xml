@@ -31,17 +31,17 @@
     </string-array>
 
     <!-- Poster image size -->
-    <string name="pref_poster_size_label">Poster Image Size</string>
+    <string name="pref_poster_size_label">Poster Image Width</string>
     <string name="pref_poster_size_key" translatable="false">poster_size</string>
     <string name="pref_poster_size_default" translatable="false">w185</string>
-    <string-array name="pref_poster_sizes_options">
+    <integer-array name="pref_poster_sizes_options">
         <item>92</item>
         <item>154</item>
         <item>185</item>
         <item>342</item>
         <item>500</item>
         <item>782</item>
-    </string-array>
+    </integer-array>
     <string-array name="pref_poster_sizes_values">
         <item>w92</item>
         <item>w154</item>
