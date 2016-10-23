@@ -8,12 +8,14 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 /**
  * Created by ilkka on 19.6.2016.
  */
 public class MovieProvider extends ContentProvider {
 
+    private static final String LOG_TAG = MovieProvider.class.getSimpleName();
     private static final UriMatcher sUriMatcher = buildUriMatcher();
     MovieDBHelper mOpenHelper;
 
@@ -182,7 +184,14 @@ public class MovieProvider extends ContentProvider {
 
         switch(match) {
             case MOVIE: {
-                final long _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, values);
+                // Movie details in the default case should be bulkInserted initially so there _should_
+                // already be an entry here, thus using the conflict resolve rule CONFLICT_REPLACE
+                final long _id = db.insertWithOnConflict(
+                        MovieContract.MovieEntry.TABLE_NAME,
+                        null,
+                        values,
+                        SQLiteDatabase.CONFLICT_REPLACE
+                );
                 if (_id > 0) {
                     returnUri = MovieContract.MovieEntry.buildMovieUri(_id);
                 } else {
@@ -332,7 +341,12 @@ public class MovieProvider extends ContentProvider {
                 db.beginTransaction();
                 try {
                     for (ContentValues value : values) {
-                        final long _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, value);
+                        Log.v(LOG_TAG, "Inserting to movie table: " + value.toString());
+                        final long _id = db.insertWithOnConflict(
+                                MovieContract.MovieEntry.TABLE_NAME,
+                                null,
+                                value,
+                                SQLiteDatabase.CONFLICT_IGNORE);
                         if (_id != -1) insertCount++;
                     }
                     db.setTransactionSuccessful();
@@ -344,7 +358,11 @@ public class MovieProvider extends ContentProvider {
                 db.beginTransaction();
                 try {
                     for (ContentValues value: values) {
-                        final long _id = db.insert(MovieContract.FavoriteEntry.TABLE_NAME, null, value);
+                        final long _id = db.insertWithOnConflict(
+                                MovieContract.FavoriteEntry.TABLE_NAME,
+                                null,
+                                value,
+                                SQLiteDatabase.CONFLICT_REPLACE);
                         if (_id != -1) insertCount++;
                     }
                     db.setTransactionSuccessful();
@@ -356,7 +374,12 @@ public class MovieProvider extends ContentProvider {
                 db.beginTransaction();
                 try {
                     for (ContentValues value: values) {
-                        final long _id = db.insert(MovieContract.PopularEntry.TABLE_NAME, null, value);
+                        Log.v(LOG_TAG, "Inserting to popular movie table: " + value.toString());
+                        final long _id = db.insertWithOnConflict(
+                                MovieContract.PopularEntry.TABLE_NAME,
+                                null,
+                                value,
+                                SQLiteDatabase.CONFLICT_REPLACE);
                         if (_id != -1) insertCount++;
                     }
                     db.setTransactionSuccessful();
@@ -368,7 +391,11 @@ public class MovieProvider extends ContentProvider {
                 db.beginTransaction();
                 try {
                     for (ContentValues value: values) {
-                        final long _id = db.insert(MovieContract.TopRatedEntry.TABLE_NAME, null, value);
+                        final long _id = db.insertWithOnConflict(
+                                MovieContract.TopRatedEntry.TABLE_NAME,
+                                null,
+                                value,
+                                SQLiteDatabase.CONFLICT_REPLACE);
                         if (_id != -1) insertCount++;
                     }
                     db.setTransactionSuccessful();
@@ -380,7 +407,11 @@ public class MovieProvider extends ContentProvider {
                 db.beginTransaction();
                 try {
                     for (ContentValues value : values) {
-                        final long _id = db.insert(MovieContract.ReviewEntry.TABLE_NAME, null, value);
+                        final long _id = db.insertWithOnConflict(
+                                MovieContract.ReviewEntry.TABLE_NAME,
+                                null,
+                                value,
+                                SQLiteDatabase.CONFLICT_REPLACE);
                         if (_id != -1) insertCount++;
                     }
                     db.setTransactionSuccessful();
@@ -392,7 +423,11 @@ public class MovieProvider extends ContentProvider {
                 db.beginTransaction();
                 try {
                     for (ContentValues value : values) {
-                        final long _id = db.insert(MovieContract.TrailerEntry.TABLE_NAME, null, value);
+                        final long _id = db.insertWithOnConflict(
+                                MovieContract.TrailerEntry.TABLE_NAME,
+                                null,
+                                value,
+                                SQLiteDatabase.CONFLICT_REPLACE);
                         if (_id != -1) insertCount++;
                     }
                     db.setTransactionSuccessful();
@@ -404,6 +439,7 @@ public class MovieProvider extends ContentProvider {
                 return super.bulkInsert(uri, values);
         }
 
+        Log.v(LOG_TAG, "notifying for change in uri: " + uri);
         getContext().getContentResolver().notifyChange(uri, null);
         return insertCount;
     }
