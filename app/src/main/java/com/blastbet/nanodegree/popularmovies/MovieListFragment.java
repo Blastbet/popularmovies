@@ -110,18 +110,25 @@ public class MovieListFragment
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         Uri uri;
+        String sortOrder;
+
         if (mSortKey.equalsIgnoreCase("popular")) {
             uri = MovieContract.PopularEntry.CONTENT_URI;
+            sortOrder = MovieContract.PopularEntry.TABLE_NAME +
+                    "." + MovieContract.PopularEntry._ID + " ASC";
         } else if (mSortKey.equalsIgnoreCase("top_rated")){
             uri = MovieContract.TopRatedEntry.CONTENT_URI;
+            sortOrder = MovieContract.TopRatedEntry.TABLE_NAME +
+                    "." + MovieContract.TopRatedEntry._ID + " ASC";
         } else if (mSortKey.equalsIgnoreCase("favorites")){
             uri = MovieContract.FavoriteEntry.CONTENT_URI;
+            sortOrder = MovieContract.FavoriteEntry.TABLE_NAME +
+                    "." + MovieContract.FavoriteEntry._ID + " ASC";
         } else {
             throw new UnsupportedOperationException("Unsupported movie list selection (" + mSortKey + ")");
         }
 
-        final String sortOrder = MovieContract.MovieEntry.TABLE_NAME +
-                "." + MovieContract.MovieEntry._ID + " ASC";
+        Log.v(LOG_TAG, "Creating cursor loader. for " + mSortKey + " list - uri:" + uri);
         return new CursorLoader(getActivity(), uri, MOVIE_COLUMNS, null, null, sortOrder);
     }
 
