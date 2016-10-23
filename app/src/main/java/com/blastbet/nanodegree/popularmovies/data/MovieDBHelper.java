@@ -16,7 +16,7 @@ import com.blastbet.nanodegree.popularmovies.data.MovieContract.FavoriteEntry;
  */
 public class MovieDBHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     protected static final String DATABASE_NAME = "movie.db";
 
@@ -27,7 +27,7 @@ public class MovieDBHelper extends SQLiteOpenHelper {
     @Override
     public void onOpen(SQLiteDatabase db) {
         super.onOpen(db);
-        db.execSQL("PRAGMA foreign_keys=ON;");
+        db.setForeignKeyConstraintsEnabled(true);
     }
 
     @Override
@@ -38,7 +38,7 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 MovieEntry.COLUMN_TITLE + " TEXT NOT NULL, " +
                 MovieEntry.COLUMN_POSTER_PATH + " TEXT NOT NULL," +
                 MovieEntry.COLUMN_OVERVIEW + " TEXT NOT NULL, " +
-                MovieEntry.COLUMN_RUNTIME + " TEXT NOT NULL, " +
+                MovieEntry.COLUMN_RUNTIME + " TEXT, " +
                 MovieEntry.COLUMN_RELEASE_DATE + " INTEGER NOT NULL, " +
                 MovieEntry.COLUMN_VOTE_AVERAGE + " TEXT NOT NULL" +
                 " );";
