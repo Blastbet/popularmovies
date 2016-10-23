@@ -1,8 +1,10 @@
 package com.blastbet.nanodegree.popularmovies;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
+import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -21,7 +23,11 @@ import com.blastbet.nanodegree.popularmovies.data.MovieContract;
 import com.blastbet.nanodegree.popularmovies.sync.MovieSyncAdapter;
 import com.blastbet.nanodegree.popularmovies.tmdb.Movie;
 
-public class MovieListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class MovieListFragment
+        extends Fragment
+        implements
+        LoaderManager.LoaderCallbacks<Cursor>,
+        SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String LOG_TAG = MovieListFragment.class.getSimpleName();
 
     private MovieCursorAdapter mAdapter = null;
@@ -59,6 +65,9 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
 
         mSortKey = PreferenceManager.getDefaultSharedPreferences(getActivity())
                 .getString(getString(R.string.pref_sort_by_key), getString(R.string.pref_sort_by_default));
+
+        PreferenceManager.getDefaultSharedPreferences(getActivity()).
+                registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
@@ -91,29 +100,11 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
         }
     }
 
-    /**
-     * Updates the movie listing in case the sort order has been changed.
-     */
-    private void updateSortOrder() {
-        final String sortKey = PreferenceManager.getDefaultSharedPreferences(getActivity())
-                .getString(getString(R.string.pref_sort_by_key), getString(R.string.pref_sort_by_default));
-
-        if (sortKey != mSortKey) {
-            mSortKey = sortKey;
-            updateMovies();
-        }
-    }
-
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         Log.d(LOG_TAG, "Activity created, Creating the loader.");
         getLoaderManager().initLoader(MOVIE_LIST_LOADER, null, this);
         super.onActivityCreated(savedInstanceState);
-    }
-
-    public void updateMovies() {
-        MovieSyncAdapter.syncNow(getActivity());
-        getLoaderManager().restartLoader(MOVIE_LIST_LOADER, null, this);
     }
 
     @Override
@@ -136,11 +127,35 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        Log.v(LOG_TAG, "Cursor loader (" + loader.toString() + ")loading finished..");
         mAdapter.swapCursor(data);
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
+        Log.v(LOG_TAG, "Cursor loader (" + loader.toString() + ") reset..");
         mAdapter.swapCursor(null);
     }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        final String prefSortKey = getString(R.string.pref_sort_by_key);
+        if (key == prefSortKey) {
+            mSortKey = sharedPreferences.getString(prefSortKey, mSortKey);
+            Log.v(LOG_TAG, "Sort preference changed to " + mSortKey + ", reloading movies");
+            reloadMovies();
+        }
+    }
+
+    public void updateMovies() {
+        MovieSyncAdapter.syncListNow(getActivity());
+        getLoaderManager().restartLoader(MOVIE_LIST_LOADER, null, this);
+    }
+
+    public void reloadMovies() {
+        getLoaderManager().destroyLoader(MOVIE_LIST_LOADER);
+        getLoaderManager().initLoader(MOVIE_LIST_LOADER, null, this);
+    }
+
+
 }
