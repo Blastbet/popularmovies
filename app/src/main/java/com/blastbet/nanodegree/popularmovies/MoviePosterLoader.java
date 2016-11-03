@@ -43,6 +43,7 @@ public class MoviePosterLoader {
         final String size = PreferenceManager.getDefaultSharedPreferences(mContext).getString(sizeKey, sizeDefault);
 
         StringBuilder sb = new StringBuilder(TMDB_BASE_IMAGE_URL);
+        sb.append('w');
         sb.append(size);
         sb.append('/');
         sb.append(mPosterPath);
@@ -71,8 +72,8 @@ public class MoviePosterLoader {
     public void loadMoviePoster(int width, int height, Target target) {
         mTarget = target;
         Picasso.with(mContext)
-                    .load(getURI())
-                    .resize(width, height)
-                    .into(target);
+                .load(getURI())
+                .resize(width, height)
+                .into(target);
     }
 }

@@ -63,20 +63,20 @@ public class MovieListFragment
         // Retain the fragment through configuration changes.
         setRetainInstance(true);
 
-        mSortKey = PreferenceManager.getDefaultSharedPreferences(getActivity())
-                .getString(getString(R.string.pref_sort_by_key), getString(R.string.pref_sort_by_default));
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
 
-        PreferenceManager.getDefaultSharedPreferences(getActivity()).
-                registerOnSharedPreferenceChangeListener(this);
+        mSortKey = preferences.getString(getString(R.string.pref_sort_by_key), getString(R.string.pref_sort_by_default));
+
+        preferences.registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_movie_list, container, false);
-        RecyclerView movieGrid = (RecyclerView)rootView.findViewById(R.id.grid_movies);
+        RecyclerView movieGrid = (RecyclerView) rootView.findViewById(R.id.grid_movies);
         //movieGrid.setHasFixedSize(true);
-        movieGrid.setLayoutManager(new GridLayoutManager(getContext(), 3));
+        movieGrid.setLayoutManager(new PosterGridLayoutManager(getContext(), 1));
         mAdapter = new MovieCursorAdapter(getContext(), null, R.layout.movielist_item, new MovieCursorAdapter.OnMovieClickedListener() {
             @Override
             public void onClick(long movieId) {
@@ -84,7 +84,6 @@ public class MovieListFragment
             }
         });
         movieGrid.setAdapter(mAdapter);
-
         return rootView;
     }
 

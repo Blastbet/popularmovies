@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.preference.PreferenceManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -87,10 +88,11 @@ public class MovieCursorAdapter extends CursorRecyclerViewAdapter<MovieCursorAda
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-
-        final View v = LayoutInflater.from(parent.getContext()).inflate(mResourceId, parent, false);
-
+        Context context = parent.getContext();
+        final View v = LayoutInflater.from(context).inflate(mResourceId, parent, false);
         final ImageView imageView = (ImageView) v.findViewById(R.id.list_poster_image);
+
+//        imageView.setMinimumWidth(size);
         imageView.setVisibility(View.VISIBLE);
         final View loader = (View) v.findViewById(R.id.list_poster_image_progress);
         loader.bringToFront();

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<com.blastbet.nanodegree.popularmovies.DebugLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:padding="0dp"
@@ -9,7 +9,8 @@
 
     <ImageView
         android:layout_width="wrap_content"
-        android:layout_height="?listPreferredItemHeight"
+        android:layout_height="wrap_content"
+        android:scaleType="fitCenter"
         android:background="@android:color/holo_green_dark"
         android:id="@+id/list_poster_image"/>
 
@@ -28,7 +29,7 @@
             android:indeterminate="true"/>
 
     </FrameLayout>
-</com.blastbet.nanodegree.popularmovies.DebugLayout>
+</FrameLayout>
 <!--
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
 android:layout_width="wrap_content"

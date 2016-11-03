@@ -19,37 +19,11 @@
     <string name="pref_sort_by_popular" translatable="false">popular</string>
     <string name="pref_sort_by_top_rated" translatable="false">top_rated</string>
     <string name="pref_sort_by_favorites" translatable="false">favorites</string>
-    <string-array name="pref_sort_by">
-        <item>Popularity</item>
-        <item>Top Rated</item>
-        <item>Favorites</item>
-    </string-array>
-    <string-array name="pref_sort_by_values">
-        <item>@string/pref_sort_by_popular</item>
-        <item>@string/pref_sort_by_top_rated</item>
-        <item>@string/pref_sort_by_favorites</item>
-    </string-array>
 
     <!-- Poster image size -->
     <string name="pref_poster_size_label">Poster Image Width</string>
     <string name="pref_poster_size_key" translatable="false">poster_size</string>
-    <string name="pref_poster_size_default" translatable="false">w185</string>
-    <integer-array name="pref_poster_sizes_options">
-        <item>92</item>
-        <item>154</item>
-        <item>185</item>
-        <item>342</item>
-        <item>500</item>
-        <item>782</item>
-    </integer-array>
-    <string-array name="pref_poster_sizes_values">
-        <item>w92</item>
-        <item>w154</item>
-        <item>w185</item>
-        <item>w342</item>
-        <item>w500</item>
-        <item>w782</item>
-    </string-array>
+    <string name="pref_poster_size_default" translatable="false">185</string>
 
     <string name="pref_header_general">General</string>
 
