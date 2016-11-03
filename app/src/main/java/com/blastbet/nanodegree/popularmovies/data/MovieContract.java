@@ -144,6 +144,10 @@ public class MovieContract {
         public static Uri buildReviewWithMovieIdUri(long movieId) {
             return CONTENT_URI.buildUpon().appendPath(Long.toString(movieId)).build();
         }
+
+        public static Long getIdFromUri(Uri uri) {
+            return Long.parseLong(uri.getPathSegments().get(1));
+        }
     }
 
     public static final class TrailerEntry implements BaseColumns {
@@ -174,6 +178,10 @@ public class MovieContract {
 
         public static Uri buildTrailerWithMovieIdUri(long movieId) {
             return CONTENT_URI.buildUpon().appendPath(Long.toString(movieId)).build();
+        }
+
+        public static Long getIdFromUri(Uri uri) {
+            return Long.parseLong(uri.getPathSegments().get(1));
         }
     }
 

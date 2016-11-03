@@ -39,9 +39,8 @@ public class MovieProvider extends ContentProvider {
         matcher.addURI(AUTHORITY, MovieContract.PATH_POPULAR_MOVIE  , POPULAR_MOVIE);
         matcher.addURI(AUTHORITY, MovieContract.PATH_TOP_RATED_MOVIE, TOP_RATED_MOVIE);
 
-        matcher.addURI(AUTHORITY, MovieContract.PATH_REVIEW         , REVIEW);
-        matcher.addURI(AUTHORITY, MovieContract.PATH_TRAILER        , TRAILER);
-
+        matcher.addURI(AUTHORITY, MovieContract.PATH_REVIEW + "/#"   , REVIEW);
+        matcher.addURI(AUTHORITY, MovieContract.PATH_TRAILER + "/#"  , TRAILER);
         matcher.addURI(AUTHORITY, MovieContract.PATH_MOVIE + "/#"   , MOVIE_WITH_ID);
 
         return matcher;
@@ -109,6 +108,14 @@ public class MovieProvider extends ContentProvider {
             MovieContract.MovieEntry.TABLE_NAME + "." + MovieContract.MovieEntry.COLUMN_MOVIE_ID +
                     " = ? ";
 
+    private static final String sReviewIdSelection =
+            MovieContract.ReviewEntry.TABLE_NAME + "." + MovieContract.ReviewEntry.COLUMN_MOVIE_ID +
+                    " = ? ";
+
+    private static final String sTrailerIdSelection =
+            MovieContract.TrailerEntry.TABLE_NAME + "." + MovieContract.TrailerEntry.COLUMN_MOVIE_ID +
+                    " = ? ";
+
     @Override
     public boolean onCreate() {
         mOpenHelper = new MovieDBHelper(getContext());
@@ -121,6 +128,7 @@ public class MovieProvider extends ContentProvider {
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         final SQLiteDatabase db = mOpenHelper.getReadableDatabase();
         final int match = sUriMatcher.match(uri);
+        long movieId;
         Cursor retCursor = null;
         switch (match) {
             case MOVIE:
@@ -140,9 +148,21 @@ public class MovieProvider extends ContentProvider {
                         db, projection, selection, selectionArgs, null, null, sortOrder);
                 break;
             case MOVIE_WITH_ID:
-                long movieId = MovieContract.MovieEntry.getIdFromUri(uri);
+                movieId = MovieContract.MovieEntry.getIdFromUri(uri);
                 retCursor = db.query(MovieContract.MovieEntry.TABLE_NAME,
                         projection, sMovieIdSelection, new String[]{Long.toString(movieId)},
+                        null, null, sortOrder);
+                break;
+            case REVIEW:
+                movieId = MovieContract.ReviewEntry.getIdFromUri(uri);
+                retCursor = db.query(MovieContract.ReviewEntry.TABLE_NAME,
+                        projection, sReviewIdSelection, new String[]{Long.toString(movieId)},
+                        null, null, sortOrder);
+                break;
+            case TRAILER:
+                movieId = MovieContract.TrailerEntry.getIdFromUri(uri);
+                retCursor = db.query(MovieContract.TrailerEntry.TABLE_NAME,
+                        projection, sTrailerIdSelection, new String[]{Long.toString(movieId)},
                         null, null, sortOrder);
                 break;
             default:

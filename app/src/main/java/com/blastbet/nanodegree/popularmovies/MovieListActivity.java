@@ -15,7 +15,6 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
     private static final String LOG_TAG = MovieListActivity.class.getSimpleName();
 
     private boolean mTwoPane;
-    private static final String DETAILSFRAGMENT_TAG = "DF_TAG";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,7 +27,7 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
             Log.v(LOG_TAG, "Two pane mode.");
             if (savedInstanceState != null) {
                 getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.movie_details_container, new MovieDetailsFragment(), DETAILSFRAGMENT_TAG)
+                        .replace(R.id.movie_details_container, new MovieDetailsFragment(), MovieDetailsFragment.DETAILSFRAGMENT_TAG)
                         .commit();
             }
         } else {
@@ -42,13 +41,14 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
     protected void onResume() {
         super.onResume();
 
-        MovieListFragment mlf = (MovieListFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_movie_list);
+        MovieListFragment mlf = (MovieListFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.fragment_movie_list);
         if (mlf != null) {
             mlf.updateMovies();
         }
 
-        MovieDetailsFragment mdf = (MovieDetailsFragment) getSupportFragmentManager().findFragmentByTag(DETAILSFRAGMENT_TAG);
-
+        MovieDetailsFragment mdf = (MovieDetailsFragment) getSupportFragmentManager()
+                .findFragmentByTag(MovieDetailsFragment.DETAILSFRAGMENT_TAG);
     }
 
     @Override
@@ -88,8 +88,10 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
             MovieDetailsFragment detailsFragment = new MovieDetailsFragment();
             detailsFragment.setArguments(args);
 
+            detailsFragment.updateMovie(movieId);
+
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.movie_details_container, detailsFragment, DETAILSFRAGMENT_TAG)
+                    .replace(R.id.movie_details_container, detailsFragment, MovieDetailsFragment.DETAILSFRAGMENT_TAG)
                     .commit();
 
         }

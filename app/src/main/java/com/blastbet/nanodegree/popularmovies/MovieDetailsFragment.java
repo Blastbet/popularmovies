@@ -18,11 +18,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.blastbet.nanodegree.popularmovies.data.MovieContract;
-import com.blastbet.nanodegree.popularmovies.tmdb.MovieApi;
+import com.blastbet.nanodegree.popularmovies.sync.MovieSyncAdapter;
 import com.blastbet.nanodegree.popularmovies.tmdb.Movie;
 import com.blastbet.nanodegree.popularmovies.tmdb.MovieReview;
 import com.blastbet.nanodegree.popularmovies.tmdb.MovieTrailer;
@@ -30,6 +31,7 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import butterknife.BindView;
@@ -38,14 +40,14 @@ import butterknife.Unbinder;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MovieDetailsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final String LOG_TAG = MovieDetailsFragment.class.getSimpleName();
 
     // the fragment initialization parameter
     private static final String ARG_MOVIE = "movie_details";
+
+    public static final String DETAILSFRAGMENT_TAG = "DF_TAG";
 
     private Movie mMovie;
 
@@ -60,6 +62,8 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
     @BindView(R.id.text_movie_detail_run_length) TextView mRuntimeView;
     @BindView(R.id.text_movie_detail_rating) TextView mRatingView;
     @BindView(R.id.image_movie_detail_poster) ImageView mPosterView;
+    @BindView(R.id.trailer_list_view) ListView mTrailerListView;
+    @BindView(R.id.review_list_view) ListView mReviewListView;
 
     private SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyy");
 
@@ -72,6 +76,7 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
     private static final String[] MOVIE_DETAIL_COLUMNS = {
             MovieContract.MovieEntry.TABLE_NAME + "." + MovieContract.MovieEntry._ID,
             MovieContract.MovieEntry.COLUMN_MOVIE_ID,
+            MovieContract.MovieEntry.COLUMN_TITLE,
             MovieContract.MovieEntry.COLUMN_POSTER_PATH,
             MovieContract.MovieEntry.COLUMN_OVERVIEW,
             MovieContract.MovieEntry.COLUMN_RUNTIME,
@@ -79,18 +84,33 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
             MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE
     };
 
+    static final int COL_MOVIE_MOVIE_ID     = 1;
+    static final int COL_MOVIE_TITLE        = 2;
+    static final int COL_MOVIE_POSTER_PATH  = 3;
+    static final int COL_MOVIE_OVERVIEW     = 4;
+    static final int COL_MOVIE_RUNTIME      = 5;
+    static final int COL_MOVIE_RELEASE_DATE = 6;
+    static final int COL_MOVIE_VOTE_AVERAGE = 7;
+
     private static final String[] MOVIE_REVIEW_COLUMNS = {
+            MovieContract.ReviewEntry._ID,
             MovieContract.ReviewEntry.COLUMN_AUTHOR,
             MovieContract.ReviewEntry.COLUMN_CONTENT
     };
 
+    static final int COL_REVIEW_AUTHOR  = 2;
+    static final int COL_REVIEW_CONTENT = 3;
+
     private static final String[] MOVIE_TRAILER_COLUMNS = {
+            MovieContract.TrailerEntry._ID,
             MovieContract.TrailerEntry.COLUMN_KEY,
             MovieContract.TrailerEntry.COLUMN_NAME,
-            MovieContract.TrailerEntry.COLUMN_SITE,
-            MovieContract.TrailerEntry.COLUMN_SIZE,
-            MovieContract.TrailerEntry.COLUMN_TYPE
+            MovieContract.TrailerEntry.COLUMN_SITE
     };
+
+    static final int COL_TRAILER_KEY  = 2;
+    static final int COL_TRAILER_NAME = 3;
+    static final int COL_TRAILER_SITE = 4;
 
     public static final String EXTRA_MOVIE_ID_KEY = "extraMovieId";
 
@@ -160,56 +180,13 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
         View rootView = inflater.inflate(R.layout.fragment_movie_details, container, false);
         mUnbinder = ButterKnife.bind(this, rootView);
 
-
-        if (movie == null)
-        {
-            /** Set dummy data if we for some reason did not have the movie details here */
-            mTitleView.setText("---");
-            mOverviewView.setText("---");
-            mReleaseDateView.setText("---");
-            mRuntimeView.setText("---");
-            mRatingView.setText("---");
-            mPosterView.setBackgroundColor(Color.GRAY);
-        } else {
-            mMovie = movie;
-
-            /** Populate the view with the movie details */
-            mTitleView.setText(movie.getTitle());
-            mOverviewView.setText(movie.getOverview());
-            final String releaseDate = mDateFormat.format(movie.getReleaseDate()).toString();
-            mReleaseDateView.setText(releaseDate);
-            if (movie.getRuntime() == null || movie.getRuntime().isEmpty()) {
-                mRatingView.setText("-");
-//                fetchRunTime();
-            } else {
-                mRuntimeView.setText(movie.getRuntime() + " min");
-            }
-            mRatingView.setText(movie.getVoteAverage());
-            /** Use picasso to download the movie poster and also to fit the image into the
-             * imageview provided
-             */
-            Rect rect = new Rect();
-            mPosterView.getDrawingRect(rect);
-
-            mMoviePosterLoader = new MoviePosterLoader(getContext(), mMovie);
-            mMoviePosterLoader.loadMoviePoster(new Target() {
-                @Override
-                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                    mPosterView.setBackgroundColor(Color.WHITE);
-                    mPosterView.setImageBitmap(bitmap);
-                }
-
-                @Override
-                public void onBitmapFailed(Drawable errorDrawable) {
-                    Log.e(LOG_TAG, "Failed to load poster image for movie \"" + mMovie.getTitle() +"\"");
-                }
-
-                @Override
-                public void onPrepareLoad(Drawable placeHolderDrawable) {
-                    mPosterView.setBackground(placeHolderDrawable);
-                }
-            });
-        }
+        /** Set dummy data if we for some reason did not have the movie details here */
+        mTitleView.setText("---");
+        mOverviewView.setText("---");
+        mReleaseDateView.setText("---");
+        mRuntimeView.setText("---");
+        mRatingView.setText("---");
+        mPosterView.setBackgroundColor(Color.GRAY);
         return rootView;
     }
 
@@ -268,6 +245,13 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
         return new CursorLoader(getActivity(), uri, MOVIE_REVIEW_COLUMNS, null, null, "_id ASC");
     }
 
+    public void updateMovie(long movieId) {
+        MovieSyncAdapter.syncDetailsNow(getContext(), movieId);
+        getLoaderManager().restartLoader(MOVIE_DETAILS_LOADER, getArguments(), this);
+        getLoaderManager().restartLoader(MOVIE_REVIEWS_LOADER, getArguments(), this);
+        getLoaderManager().restartLoader(MOVIE_TRAILERS_LOADER, getArguments(), this);
+    }
+
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         long movieId = args.getLong(EXTRA_MOVIE_ID_KEY);
@@ -287,11 +271,50 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
         }
     }
 
+    public void setDetails(Cursor details) {
+        if (!details.moveToFirst()) {
+            Log.v(LOG_TAG, "Empty details received");
+            return;
+        }
+        mTitleView.setText(details.getString(COL_MOVIE_TITLE));
+        mOverviewView.setText(details.getString(COL_MOVIE_OVERVIEW));
+        Date releaseDate = new Date(details.getLong(COL_MOVIE_RELEASE_DATE));
+        mReleaseDateView.setText(mDateFormat.format(releaseDate));
+        mRuntimeView.setText(details.getString(COL_MOVIE_RUNTIME));
+        mRatingView.setText(details.getString(COL_MOVIE_VOTE_AVERAGE));
+
+        mMoviePosterLoader = new MoviePosterLoader(getContext(),
+                details.getString(COL_MOVIE_POSTER_PATH));
+        mMoviePosterLoader.loadMoviePoster(new Target() {
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                mPosterView.setBackgroundColor(Color.WHITE);
+                mPosterView.setImageBitmap(bitmap);
+            }
+
+            @Override
+            public void onBitmapFailed(Drawable errorDrawable) {
+                Log.e(LOG_TAG, "Failed to load poster image for movie \"" + mMovie.getTitle() +"\"");
+            }
+
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+                mPosterView.setBackground(placeHolderDrawable);
+            }
+        });
+    }
+
+    public void setTrailers(Cursor trailers) {
+        mTrailerListView.setAdapter(new TrailerCursorAdapter(getContext(), trailers));
+    }
+
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         if (loader == mDetailsLoader) {
+            setDetails(data);
             Log.e(LOG_TAG, "Details loaded");
         } else if (loader == mTrailersLoader) {
+            setTrailers(data);
             Log.e(LOG_TAG, "Trailers loaded");
         } else if (loader == mReviewsLoader) {
             Log.e(LOG_TAG, "Reviews loaded");

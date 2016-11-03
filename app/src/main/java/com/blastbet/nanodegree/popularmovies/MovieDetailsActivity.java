@@ -52,4 +52,17 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        final long movieId = getIntent().getLongExtra(MovieDetailsFragment.EXTRA_MOVIE_ID_KEY, -1);
+
+        MovieDetailsFragment mdf = (MovieDetailsFragment) getSupportFragmentManager().findFragmentByTag(MovieDetailsFragment.DETAILSFRAGMENT_TAG);
+        if (mdf != null) {
+            mdf.updateMovie(movieId);
+        }
+    }
+
 }
