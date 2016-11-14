@@ -16,7 +16,7 @@ import com.blastbet.nanodegree.popularmovies.data.MovieContract.FavoriteEntry;
  */
 public class MovieDBHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
     protected static final String DATABASE_NAME = "movie.db";
 
@@ -85,9 +85,8 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 TrailerEntry.COLUMN_TYPE + " TEXT NOT NULL, " +
                 // Set foreign key to movie table tmdb id
                 " FOREIGN KEY (" + TrailerEntry.COLUMN_MOVIE_ID + ") REFERENCES " +
-                MovieEntry.TABLE_NAME + " (" + MovieEntry.COLUMN_MOVIE_ID + "), " +
-                " UNIQUE (" + TrailerEntry.COLUMN_SITE + ", " + TrailerEntry.COLUMN_KEY +
-                ") ON CONFLICT REPLACE);";
+                MovieEntry.TABLE_NAME + " (" + MovieEntry.COLUMN_MOVIE_ID + ") " +
+                " );";
 
         db.execSQL(SQL_CREATE_MOVIE_TABLE);
         db.execSQL(SQL_CREATE_POPULAR_MOVIE_TABLE);

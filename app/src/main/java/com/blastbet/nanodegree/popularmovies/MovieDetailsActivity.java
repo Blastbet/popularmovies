@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -13,6 +14,7 @@ import java.security.InvalidParameterException;
 
 public class MovieDetailsActivity extends AppCompatActivity {
 
+    private static final String LOG_TAG = MovieDetailsActivity.class.getSimpleName();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -21,7 +23,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
         MovieDetailsFragment fragment = MovieDetailsFragment.newInstance(movieId);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.movie_details_container, fragment)
+                    .add(R.id.movie_details_container, fragment, MovieDetailsFragment.DETAILSFRAGMENT_TAG)
                     .commit();
         }
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -59,8 +61,10 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
         final long movieId = getIntent().getLongExtra(MovieDetailsFragment.EXTRA_MOVIE_ID_KEY, -1);
 
+        Log.v(LOG_TAG, "Resuming details fragment. Movie id:" + movieId);
         MovieDetailsFragment mdf = (MovieDetailsFragment) getSupportFragmentManager().findFragmentByTag(MovieDetailsFragment.DETAILSFRAGMENT_TAG);
         if (mdf != null) {
+            Log.v(LOG_TAG, "Resuming details fragment. Movie id:" + movieId);
             mdf.updateMovie(movieId);
         }
     }

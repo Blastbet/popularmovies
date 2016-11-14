@@ -88,14 +88,10 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
             MovieDetailsFragment detailsFragment = new MovieDetailsFragment();
             detailsFragment.setArguments(args);
 
-            detailsFragment.updateMovie(movieId);
-
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.movie_details_container, detailsFragment, MovieDetailsFragment.DETAILSFRAGMENT_TAG)
                     .commit();
-
-        }
-        else {
+        } else {
             // Small display, phone e.g.
             Intent detailsIntent = new Intent(this, MovieDetailsActivity.class);
             detailsIntent.putExtra(MovieDetailsFragment.EXTRA_MOVIE_ID_KEY, movieId);

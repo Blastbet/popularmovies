@@ -130,6 +130,7 @@ public class MovieProvider extends ContentProvider {
         final int match = sUriMatcher.match(uri);
         long movieId;
         Cursor retCursor = null;
+        Log.v(LOG_TAG, "Query for Uri: " + uri);
         switch (match) {
             case MOVIE:
                 retCursor = db.query(MovieContract.MovieEntry.TABLE_NAME,
@@ -168,6 +169,7 @@ public class MovieProvider extends ContentProvider {
             default:
                 throw new UnsupportedOperationException("Unsupported uri: " + uri);
         }
+        retCursor.setNotificationUri(getContext().getContentResolver(), uri);
         return retCursor;
     }
 
@@ -249,7 +251,7 @@ public class MovieProvider extends ContentProvider {
             case REVIEW: {
                 final long _id = db.insert(MovieContract.ReviewEntry.TABLE_NAME, null, values);
                 if (_id > 0) {
-                    returnUri = MovieContract.ReviewEntry.buildReviewUri(_id);
+                    returnUri = MovieContract.ReviewEntry.buildReviewWithMovieIdUri(_id);
                 } else {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 }
@@ -258,7 +260,7 @@ public class MovieProvider extends ContentProvider {
             case TRAILER: {
                 final long _id = db.insert(MovieContract.TrailerEntry.TABLE_NAME, null, values);
                 if (_id > 0) {
-                    returnUri = MovieContract.TrailerEntry.buildTrailerUri(_id);
+                    returnUri = MovieContract.TrailerEntry.buildTrailerWithMovieIdUri(_id);
                 } else {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 }

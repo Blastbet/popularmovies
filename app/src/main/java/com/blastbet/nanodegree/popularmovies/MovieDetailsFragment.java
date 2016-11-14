@@ -1,6 +1,7 @@
 package com.blastbet.nanodegree.popularmovies;
 
 import android.content.Context;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -49,9 +50,14 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
 
     public static final String DETAILSFRAGMENT_TAG = "DF_TAG";
 
-    private Movie mMovie;
+    private Cursor mDetailsCursor = null;
+    private Cursor mTrailerCursor = null;
+    private Cursor mReviewCursor = null;
+    //private Movie mMovie;
 
-    private List<MovieReview> mReviews;
+//    private List<MovieReview> mReviews;
+    private TrailerCursorAdapter mTrailerAdapter = null;
+
     private List<MovieTrailer> mTrailers;
 
     private Unbinder mUnbinder = null;
@@ -98,8 +104,8 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
             MovieContract.ReviewEntry.COLUMN_CONTENT
     };
 
-    static final int COL_REVIEW_AUTHOR  = 2;
-    static final int COL_REVIEW_CONTENT = 3;
+    static final int COL_REVIEW_AUTHOR  = 1;
+    static final int COL_REVIEW_CONTENT = 2;
 
     private static final String[] MOVIE_TRAILER_COLUMNS = {
             MovieContract.TrailerEntry._ID,
@@ -108,9 +114,9 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
             MovieContract.TrailerEntry.COLUMN_SITE
     };
 
-    static final int COL_TRAILER_KEY  = 2;
-    static final int COL_TRAILER_NAME = 3;
-    static final int COL_TRAILER_SITE = 4;
+    static final int COL_TRAILER_KEY  = 1;
+    static final int COL_TRAILER_NAME = 2;
+    static final int COL_TRAILER_SITE = 3;
 
     public static final String EXTRA_MOVIE_ID_KEY = "extraMovieId";
 
@@ -187,6 +193,8 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
         mRuntimeView.setText("---");
         mRatingView.setText("---");
         mPosterView.setBackgroundColor(Color.GRAY);
+        mTrailerAdapter = new TrailerCursorAdapter(getContext(), null);
+        mTrailerListView.setAdapter(mTrailerAdapter);
         return rootView;
     }
 
@@ -198,7 +206,7 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
         }
     }
 
-    @Override
+/*    @Override
     public void onAttach(Context context) {
         super.onAttach(context);
     }
@@ -207,8 +215,8 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
     public void onDetach() {
         super.onDetach();
     }
-
-    private Callback<Movie> mMovieCallback = new Callback<Movie>() {
+*/
+/*    private Callback<Movie> mMovieCallback = new Callback<Movie>() {
         @Override
         public void onResponse(Call<Movie> call, Response<Movie> response) {
             final String runtime = response.body().getRuntime();
@@ -221,13 +229,35 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
             Toast.makeText(getContext(), "Failed to fetch movie runtime!", Toast.LENGTH_LONG).show();
         }
     };
-
+*/
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        getLoaderManager().initLoader(MOVIE_DETAILS_LOADER, getArguments(), this);
-        getLoaderManager().initLoader(MOVIE_REVIEWS_LOADER, getArguments(), this);
-        getLoaderManager().initLoader(MOVIE_TRAILERS_LOADER, getArguments(), this);
+        Bundle args = getArguments();
+        if (args != null) {
+            final long movieId = args.getLong(EXTRA_MOVIE_ID_KEY);
+            MovieSyncAdapter.syncDetailsNow(getActivity(), movieId);
+            getLoaderManager().initLoader(MOVIE_DETAILS_LOADER, getArguments(), this);
+            getLoaderManager().initLoader(MOVIE_REVIEWS_LOADER, getArguments(), this);
+            getLoaderManager().initLoader(MOVIE_TRAILERS_LOADER, getArguments(), this);
+        } else if (savedInstanceState != null) {
+            getLoaderManager().restartLoader(MOVIE_DETAILS_LOADER, savedInstanceState, this);
+            getLoaderManager().restartLoader(MOVIE_REVIEWS_LOADER, savedInstanceState, this);
+            getLoaderManager().restartLoader(MOVIE_TRAILERS_LOADER, savedInstanceState, this);
+        }
         super.onActivityCreated(savedInstanceState);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putLong(EXTRA_MOVIE_ID_KEY, getArguments().getLong(EXTRA_MOVIE_ID_KEY));
+
+        super.onSaveInstanceState(outState);
+    }
+
+
+    @Override
+    public void onPause() {
+        super.onPause();
     }
 
     public  Loader<Cursor> createDetailsLoader(long movieId) {
@@ -245,8 +275,8 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
         return new CursorLoader(getActivity(), uri, MOVIE_REVIEW_COLUMNS, null, null, "_id ASC");
     }
 
+
     public void updateMovie(long movieId) {
-        MovieSyncAdapter.syncDetailsNow(getContext(), movieId);
         getLoaderManager().restartLoader(MOVIE_DETAILS_LOADER, getArguments(), this);
         getLoaderManager().restartLoader(MOVIE_REVIEWS_LOADER, getArguments(), this);
         getLoaderManager().restartLoader(MOVIE_TRAILERS_LOADER, getArguments(), this);
@@ -294,7 +324,7 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
 
             @Override
             public void onBitmapFailed(Drawable errorDrawable) {
-                Log.e(LOG_TAG, "Failed to load poster image for movie \"" + mMovie.getTitle() +"\"");
+                Log.e(LOG_TAG, "Failed to load poster image for movie \"" + (mTitleView != null ? mTitleView.getText() : "") +"\"");
             }
 
             @Override
@@ -305,15 +335,17 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
     }
 
     public void setTrailers(Cursor trailers) {
-        mTrailerListView.setAdapter(new TrailerCursorAdapter(getContext(), trailers));
+        mTrailerAdapter.swapCursor(trailers);
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         if (loader == mDetailsLoader) {
             setDetails(data);
+            mDetailsCursor = data;
             Log.e(LOG_TAG, "Details loaded");
         } else if (loader == mTrailersLoader) {
+            Log.v(LOG_TAG, "Loaded trailers: " + data.getCount());
             setTrailers(data);
             Log.e(LOG_TAG, "Trailers loaded");
         } else if (loader == mReviewsLoader) {

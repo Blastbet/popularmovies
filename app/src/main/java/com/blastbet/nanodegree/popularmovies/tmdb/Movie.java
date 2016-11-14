@@ -3,6 +3,7 @@ package com.blastbet.nanodegree.popularmovies.tmdb;
 import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -245,6 +246,7 @@ public class Movie implements Parcelable{
     }
 
     public void setTrailers(List<MovieTrailer> trailers) {
+        Log.v("Movie", "Inserting " + trailers.size() + "Trailers for movie");
         mTrailers = trailers;
     }
 

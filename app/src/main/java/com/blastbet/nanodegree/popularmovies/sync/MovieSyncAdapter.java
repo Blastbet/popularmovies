@@ -96,6 +96,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
         if (bundle.containsKey(MOVIE_SYNC_EXTRAS_MOVIE_ID)) {
             syncType = MOVIE_SYNC_TYPE_GET_DETAILS;
             movieId = bundle.getLong(MOVIE_SYNC_EXTRAS_MOVIE_ID);
+            Log.v(LOG_TAG, "Synchronizing details for movie: " + movieId);
         } else {
             syncType = MOVIE_SYNC_TYPE_LIST;
         }
@@ -126,6 +127,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     private Movie fetchMovieDetails(long movieId) {
+        Log.e(LOG_TAG, "Fetching movie details for movie #" + movieId);
         Call<Movie> movieCall = mMovieApi.getMovieDetails(
                 movieId, BuildConfig.THEMOVIEDB_API_KEY
         );
@@ -141,7 +143,9 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
             movie = movieCall.execute().body();
             final List<MovieReview> movieReviews = reviewCall.execute().body().getMovieReviews();
             movie.setReviews(movieReviews);
+            Log.e(LOG_TAG, "Received " + movieReviews.size() + " reviews");
             final List<MovieTrailer> movieTrailers = trailerCall.execute().body().getMovieTrailers();
+            Log.e(LOG_TAG, "Received " + movieTrailers.size() + " trailers");
             movie.setTrailers(movieTrailers);
         } catch (IOException e) {
             e.printStackTrace();
@@ -183,10 +187,10 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
         return cValues;
     }
 
-    private void addTrailersToContentValuesVector(List<MovieTrailer> trailers, Vector<ContentValues> cVector) {
+    private void addTrailersToContentValuesVector(long movieId, List<MovieTrailer> trailers, Vector<ContentValues> cVector) {
         for (MovieTrailer trailer : trailers) {
             final ContentValues cValues = new ContentValues();
-            cValues.put(MovieContract.TrailerEntry.COLUMN_MOVIE_ID, trailer.getId());
+            cValues.put(MovieContract.TrailerEntry.COLUMN_MOVIE_ID, movieId);
             cValues.put(MovieContract.TrailerEntry.COLUMN_KEY, trailer.getKey());
             cValues.put(MovieContract.TrailerEntry.COLUMN_NAME, trailer.getName());
             cValues.put(MovieContract.TrailerEntry.COLUMN_SITE, trailer.getSite());
@@ -196,10 +200,10 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
         }
     }
 
-    private void addReviewsToContentValuesVector(List<MovieReview> reviews, Vector<ContentValues> cVector) {
+    private void addReviewsToContentValuesVector(long movieId, List<MovieReview> reviews, Vector<ContentValues> cVector) {
         for (MovieReview review : reviews) {
             final ContentValues cValues = new ContentValues();
-            cValues.put(MovieContract.ReviewEntry.COLUMN_MOVIE_ID, review.getId());
+            cValues.put(MovieContract.ReviewEntry.COLUMN_MOVIE_ID, movieId);
             cValues.put(MovieContract.ReviewEntry.COLUMN_AUTHOR, review.getAuthor());
             cValues.put(MovieContract.ReviewEntry.COLUMN_CONTENT, review.getContent());
             cVector.add(cValues);
@@ -214,18 +218,19 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
 
         // ...then trailers
         Vector<ContentValues> trailerVector = new Vector<>(movie.getTrailers().size());
-        addTrailersToContentValuesVector(movie.getTrailers(), trailerVector);
+        addTrailersToContentValuesVector(movie.getId(), movie.getTrailers(), trailerVector);
         ContentValues trailersArray[] = new ContentValues[trailerVector.size()];
         trailerVector.toArray(trailersArray);
-        int inserted = resolver.bulkInsert(MovieContract.TrailerEntry.CONTENT_URI, trailersArray);
+        Log.d(LOG_TAG, "Inserting trailers " + trailerVector.size() + ": " + trailersArray[0].toString());
+        int inserted = resolver.bulkInsert(MovieContract.TrailerEntry.buildTrailerWithMovieIdUri(movie.getId()), trailersArray);
         Log.d(LOG_TAG, "Trailers sync finished, inserted " + inserted + " rows to trailers table.");
 
         // ...and finally reviews
         Vector<ContentValues> reviewVector = new Vector<>(movie.getReviews().size());
-        addReviewsToContentValuesVector(movie.getReviews(), reviewVector);
+        addReviewsToContentValuesVector(movie.getId(), movie.getReviews(), reviewVector);
         ContentValues reviewsArray[] = new ContentValues[reviewVector.size()];
         reviewVector.toArray(reviewsArray);
-        inserted = resolver.bulkInsert(MovieContract.ReviewEntry.CONTENT_URI, reviewsArray);
+        inserted = resolver.bulkInsert(MovieContract.ReviewEntry.buildReviewWithMovieIdUri(movie.getId()), reviewsArray);
         Log.d(LOG_TAG, "Reviews sync finished, inserted " + inserted + " rows to reviews table.");
     }
 
@@ -289,11 +294,13 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
 
     public static void syncListNow(Context context) {
         syncNow(getSyncAccount(context), null, context.getString(R.string.content_authority));
+        Log.v(LOG_TAG, "Synchronizing movies");
     }
 
     public static void syncDetailsNow(Context context, long movieId) {
         Bundle extras = new Bundle();
         extras.putLong(MOVIE_SYNC_EXTRAS_MOVIE_ID, movieId);
+        Log.v(LOG_TAG, "Synchronizing movies with extras: " + extras.toString());
         syncNow(getSyncAccount(context), extras, context.getString(R.string.content_authority));
     }
 
@@ -304,6 +311,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
         extras.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
         extras.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
 
+        Log.v(LOG_TAG, "Synchronizing movies with extras: " + extras.toString());
         ContentResolver.requestSync(account, authority, extras);
     }
 
