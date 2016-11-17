@@ -16,6 +16,9 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
 
     private boolean mTwoPane;
 
+    private long mSelectedMovieId = -1;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,8 +29,16 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
             mTwoPane = true;
             Log.v(LOG_TAG, "Two pane mode.");
             if (savedInstanceState != null) {
+                MovieDetailsFragment frag = null;
+                if (savedInstanceState.containsKey(MovieDetailsFragment.EXTRA_MOVIE_ID_KEY)) {
+                    mSelectedMovieId = savedInstanceState.getLong(MovieDetailsFragment.EXTRA_MOVIE_ID_KEY);
+                    frag = MovieDetailsFragment.newInstance(mSelectedMovieId);
+                } else {
+                    Log.v(LOG_TAG, "Restoring details fragment without any idea of the movie...");
+                    frag = new MovieDetailsFragment();
+                }
                 getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.movie_details_container, new MovieDetailsFragment(), MovieDetailsFragment.DETAILSFRAGMENT_TAG)
+                        .replace(R.id.movie_details_container, frag, MovieDetailsFragment.DETAILSFRAGMENT_TAG)
                         .commit();
             }
         } else {
@@ -49,6 +60,20 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
 
         MovieDetailsFragment mdf = (MovieDetailsFragment) getSupportFragmentManager()
                 .findFragmentByTag(MovieDetailsFragment.DETAILSFRAGMENT_TAG);
+
+        if (mdf != null) {
+            if (mSelectedMovieId > 0) {
+                mdf.updateMovie(mSelectedMovieId);
+            }
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        if (mSelectedMovieId > 0) {
+            outState.putLong(MovieDetailsFragment.EXTRA_MOVIE_ID_KEY, mSelectedMovieId);
+        }
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -81,6 +106,8 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
      */
     public void onMovieSelectedListener(long movieId) {
         Log.v("MovieListActivity", "onMovieSelectedListener, movie with id:" + movieId);
+
+        mSelectedMovieId = movieId;
 
         if (mTwoPane) {
             Bundle args = new Bundle();

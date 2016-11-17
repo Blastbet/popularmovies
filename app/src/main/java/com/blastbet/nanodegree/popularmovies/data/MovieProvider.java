@@ -363,7 +363,7 @@ public class MovieProvider extends ContentProvider {
                 db.beginTransaction();
                 try {
                     for (ContentValues value : values) {
-                        Log.v(LOG_TAG, "Inserting to movie table: " + value.toString());
+                        //Log.v(LOG_TAG, "Inserting to movie table: " + value.toString());
                         final long _id = db.insertWithOnConflict(
                                 MovieContract.MovieEntry.TABLE_NAME,
                                 null,
@@ -396,7 +396,7 @@ public class MovieProvider extends ContentProvider {
                 db.beginTransaction();
                 try {
                     for (ContentValues value: values) {
-                        Log.v(LOG_TAG, "Inserting to popular movie table: " + value.toString());
+                        //Log.v(LOG_TAG, "Inserting to popular movie table: " + value.toString());
                         final long _id = db.insertWithOnConflict(
                                 MovieContract.PopularEntry.TABLE_NAME,
                                 null,

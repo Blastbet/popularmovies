@@ -103,10 +103,9 @@ public class MovieCursorAdapter extends CursorRecyclerViewAdapter<MovieCursorAda
                     @Override
                     public void run() {
                         loader.setVisibility(View.GONE);
-                        Log.d(LOG_TAG, "Bitmap loaded. size: " + bitmap.getWidth() + "," + bitmap.getHeight());
+                        //Log.d(LOG_TAG, "Bitmap loaded. size: " + bitmap.getWidth() + "," + bitmap.getHeight());
                         imageView.setImageBitmap(bitmap);
                         imageView.setVisibility(View.VISIBLE);
-
 //                        v.requestLayout();
                     }
                 });

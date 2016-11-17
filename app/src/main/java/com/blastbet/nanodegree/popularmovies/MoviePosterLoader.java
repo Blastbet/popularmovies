@@ -63,7 +63,7 @@ public class MoviePosterLoader {
     public void loadMoviePoster(Target target) {
         mTarget = target;
         final Uri uri = getURI();
-        Log.v(LOG_TAG, "Starting to load movie poster from: " + uri.toString());
+        //Log.v(LOG_TAG, "Starting to load movie poster from: " + uri.toString());
         Picasso.with(mContext)
                 .load(uri)
                 .into(target);

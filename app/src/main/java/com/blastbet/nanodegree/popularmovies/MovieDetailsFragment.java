@@ -42,7 +42,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MovieDetailsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class MovieDetailsFragment extends Fragment {
     private static final String LOG_TAG = MovieDetailsFragment.class.getSimpleName();
 
     // the fragment initialization parameter
@@ -55,10 +55,12 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
     private Cursor mReviewCursor = null;
     //private Movie mMovie;
 
-//    private List<MovieReview> mReviews;
+    private long mMovieId = -1;
+
+    //    private List<MovieReview> mReviews;
     private TrailerCursorAdapter mTrailerAdapter = null;
 
-    private List<MovieTrailer> mTrailers;
+//    private List<MovieTrailer> mTrailers;
 
     private Unbinder mUnbinder = null;
 
@@ -130,13 +132,6 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param movieId Id of the movie whose details to show.
-     * @return A new instance of fragment MovieDetailsFragment.
-     */
     public static MovieDetailsFragment newInstance(long movieId) {
         MovieDetailsFragment fragment = new MovieDetailsFragment();
         Bundle args = new Bundle();
@@ -149,50 +144,27 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        final String MOVIEDB_BASE_URL = "http://api.themoviedb.org/3/";
-
         if (getArguments() != null) {
-            long movieId = getArguments().getLong(EXTRA_MOVIE_ID_KEY);
-//            mMovie = getArguments().getParcelable(ARG_MOVIE);
+            mMovieId = getArguments().getLong(EXTRA_MOVIE_ID_KEY);
+            Log.v(LOG_TAG, "Created new movieDetailsFragment with movie id: " + mMovieId);
         }
-/*        mRetrofit = new Retrofit.Builder()
-                .addConverterFactory(GsonConverterFactory.create())
-                .baseUrl(MOVIEDB_BASE_URL)
-                .build();
-
-        mMovieApi = mRetrofit.create(MovieApi.class);*/
     }
-
-/*    private void fetchRunTime() {
-        mMovieCall = mMovieApi.getMovieDetails(mMovie.getId(), BuildConfig.THEMOVIEDB_API_KEY);
-        mMovieCall.enqueue(mMovieCallback);
-    }
-*/
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-        Movie movie = null;
-
-        Bundle args = getArguments();
-        if (args != null) {
-            movie = args.getParcelable(getString(R.string.movie_extra));
-        } else {
-            movie = getActivity().getIntent().getParcelableExtra(getString(R.string.movie_extra));
-        }
 
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_movie_details, container, false);
         mUnbinder = ButterKnife.bind(this, rootView);
 
         /** Set dummy data if we for some reason did not have the movie details here */
-        mTitleView.setText("---");
+/*        mTitleView.setText("---");
         mOverviewView.setText("---");
         mReleaseDateView.setText("---");
         mRuntimeView.setText("---");
         mRatingView.setText("---");
-        mPosterView.setBackgroundColor(Color.GRAY);
+        mPosterView.setBackgroundColor(Color.GRAY);*/
         mTrailerAdapter = new TrailerCursorAdapter(getContext(), null);
         mTrailerListView.setAdapter(mTrailerAdapter);
         return rootView;
@@ -206,44 +178,26 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
         }
     }
 
-/*    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-    }
-*/
-/*    private Callback<Movie> mMovieCallback = new Callback<Movie>() {
-        @Override
-        public void onResponse(Call<Movie> call, Response<Movie> response) {
-            final String runtime = response.body().getRuntime();
-            mMovie.setRuntime(runtime);
-            mRuntimeView.setText(runtime + " min");
-        }
-
-        @Override
-        public void onFailure(Call<Movie> call, Throwable t) {
-            Toast.makeText(getContext(), "Failed to fetch movie runtime!", Toast.LENGTH_LONG).show();
-        }
-    };
-*/
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        Bundle args = getArguments();
-        if (args != null) {
-            final long movieId = args.getLong(EXTRA_MOVIE_ID_KEY);
-            MovieSyncAdapter.syncDetailsNow(getActivity(), movieId);
-            getLoaderManager().initLoader(MOVIE_DETAILS_LOADER, getArguments(), this);
-            getLoaderManager().initLoader(MOVIE_REVIEWS_LOADER, getArguments(), this);
-            getLoaderManager().initLoader(MOVIE_TRAILERS_LOADER, getArguments(), this);
-        } else if (savedInstanceState != null) {
-            getLoaderManager().restartLoader(MOVIE_DETAILS_LOADER, savedInstanceState, this);
-            getLoaderManager().restartLoader(MOVIE_REVIEWS_LOADER, savedInstanceState, this);
-            getLoaderManager().restartLoader(MOVIE_TRAILERS_LOADER, savedInstanceState, this);
+        Bundle args = null;
+        if (savedInstanceState != null && savedInstanceState.containsKey(EXTRA_MOVIE_ID_KEY)) {
+            args = savedInstanceState;
+            mMovieId = savedInstanceState.getLong(EXTRA_MOVIE_ID_KEY);
+            Log.v(LOG_TAG, "Movie id from savedInstanceState: " + mMovieId);
+        } else {
+            args = new Bundle();
+            args.putLong(EXTRA_MOVIE_ID_KEY, mMovieId);
+            Log.v(LOG_TAG, "Movie id from class member: " + mMovieId);
         }
+        if (mMovieId > 0) {
+            getLoaderManager().initLoader(MOVIE_DETAILS_LOADER, args, detailsLoaderCallbacks);
+            getLoaderManager().initLoader(MOVIE_REVIEWS_LOADER, args, reviewsLoaderCallbacks);
+            getLoaderManager().initLoader(MOVIE_TRAILERS_LOADER, args, trailersLoaderCallbacks);
+        } else {
+            Log.v(LOG_TAG, "Movie id was invalid when activity for movieDetailsFragment was created");
+        }
+
         super.onActivityCreated(savedInstanceState);
     }
 
@@ -260,11 +214,6 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
         super.onPause();
     }
 
-    public  Loader<Cursor> createDetailsLoader(long movieId) {
-        Uri uri = MovieContract.MovieEntry.buildMovieWithIdUri(movieId);
-        return new CursorLoader(getActivity(), uri, MOVIE_DETAIL_COLUMNS, null, null, "_id ASC");
-    }
-
     public  Loader<Cursor> createTrailersLoader(long movieId) {
         Uri uri = MovieContract.TrailerEntry.buildTrailerWithMovieIdUri(movieId);
         return new CursorLoader(getActivity(), uri, MOVIE_TRAILER_COLUMNS, null, null, "_id ASC");
@@ -275,31 +224,81 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
         return new CursorLoader(getActivity(), uri, MOVIE_REVIEW_COLUMNS, null, null, "_id ASC");
     }
 
+    public void reloadMovieDetails() {
+        updateMovie(mMovieId);
+    }
+
 
     public void updateMovie(long movieId) {
-        getLoaderManager().restartLoader(MOVIE_DETAILS_LOADER, getArguments(), this);
-        getLoaderManager().restartLoader(MOVIE_REVIEWS_LOADER, getArguments(), this);
-        getLoaderManager().restartLoader(MOVIE_TRAILERS_LOADER, getArguments(), this);
+        Log.e(LOG_TAG, "UPDATE MOVIE: " + movieId);
+        MovieSyncAdapter.syncDetailsNow(getActivity(), movieId);
+        Bundle args = new Bundle();
+        args.putLong(EXTRA_MOVIE_ID_KEY, movieId);
+        mMovieId = movieId;
+        getLoaderManager().restartLoader(MOVIE_DETAILS_LOADER, args, detailsLoaderCallbacks);
+        getLoaderManager().restartLoader(MOVIE_REVIEWS_LOADER, args, reviewsLoaderCallbacks);
+        getLoaderManager().restartLoader(MOVIE_TRAILERS_LOADER, args, trailersLoaderCallbacks);
     }
 
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        long movieId = args.getLong(EXTRA_MOVIE_ID_KEY);
+    private LoaderManager.LoaderCallbacks<Cursor> detailsLoaderCallbacks =
+            new LoaderManager.LoaderCallbacks<Cursor>() {
+                @Override
+                public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+                    long movieId = args.getLong(EXTRA_MOVIE_ID_KEY);
+                    Uri uri = MovieContract.MovieEntry.buildMovieWithIdUri(movieId);
+                    return new CursorLoader(getActivity(), uri, MOVIE_DETAIL_COLUMNS, null, null, "_id ASC");
+                }
 
-        switch (id) {
-            case MOVIE_DETAILS_LOADER:
-                mDetailsLoader = createDetailsLoader(movieId);
-                return mDetailsLoader;
-            case MOVIE_TRAILERS_LOADER:
-                mTrailersLoader = createTrailersLoader(movieId);
-                return mTrailersLoader;
-            case MOVIE_REVIEWS_LOADER:
-                mReviewsLoader = createReviewsLoader(movieId);
-                return mReviewsLoader;
-            default:
-                throw new UnsupportedOperationException("Invalid loader id: " + id);
-        }
-    }
+                @Override
+                public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+                    setDetails(data);
+                    mDetailsCursor = data;
+                    Log.e(LOG_TAG, "Details loaded");
+                }
+
+                @Override
+                public void onLoaderReset(Loader<Cursor> loader) {}
+            };
+
+    private LoaderManager.LoaderCallbacks<Cursor> trailersLoaderCallbacks =
+            new LoaderManager.LoaderCallbacks<Cursor>() {
+                @Override
+                public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+                    long movieId = args.getLong(EXTRA_MOVIE_ID_KEY);
+                    Log.v(LOG_TAG, "Creating trailers loader for movie " + movieId);
+                    mTrailersLoader = createTrailersLoader(movieId);
+                    return mTrailersLoader;
+                }
+
+                @Override
+                public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+                    Log.v(LOG_TAG, "Loaded trailers: " + data.getCount());
+                    setTrailers(data);
+                    Log.e(LOG_TAG, "Trailers loaded");
+                }
+
+                @Override
+                public void onLoaderReset(Loader<Cursor> loader) {}
+            };
+
+    private LoaderManager.LoaderCallbacks<Cursor> reviewsLoaderCallbacks =
+            new LoaderManager.LoaderCallbacks<Cursor>() {
+                @Override
+                public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+                    long movieId = args.getLong(EXTRA_MOVIE_ID_KEY);
+                    Log.v(LOG_TAG, "Creating reviews loader for movie " + movieId);
+                    mReviewsLoader = createReviewsLoader(movieId);
+                    return mReviewsLoader;
+                }
+
+                @Override
+                public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+                    Log.e(LOG_TAG, "Reviews loaded");
+                }
+
+                @Override
+                public void onLoaderReset(Loader<Cursor> loader) {}
+            };
 
     public void setDetails(Cursor details) {
         if (!details.moveToFirst()) {
@@ -338,23 +337,4 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
         mTrailerAdapter.swapCursor(trailers);
     }
 
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        if (loader == mDetailsLoader) {
-            setDetails(data);
-            mDetailsCursor = data;
-            Log.e(LOG_TAG, "Details loaded");
-        } else if (loader == mTrailersLoader) {
-            Log.v(LOG_TAG, "Loaded trailers: " + data.getCount());
-            setTrailers(data);
-            Log.e(LOG_TAG, "Trailers loaded");
-        } else if (loader == mReviewsLoader) {
-            Log.e(LOG_TAG, "Reviews loaded");
-        }
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-
-    }
 }
