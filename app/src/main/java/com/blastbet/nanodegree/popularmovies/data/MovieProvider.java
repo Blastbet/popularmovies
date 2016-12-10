@@ -300,7 +300,9 @@ public class MovieProvider extends ContentProvider {
             default:
                 throw new UnsupportedOperationException("Unsupported uri: " + uri);
         }
-        getContext().getContentResolver().notifyChange(uri, null);
+        if (returnUri != null) {
+            getContext().getContentResolver().notifyChange(returnUri, null);
+        }
         return returnUri;
     }
 
