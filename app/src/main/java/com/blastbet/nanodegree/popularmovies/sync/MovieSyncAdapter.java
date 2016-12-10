@@ -224,7 +224,8 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
         // Insert movie first
         ContentResolver resolver = getContext().getContentResolver();
         ContentValues movieValues = movieToDetailedContentValues(movie);
-        resolver.insert(MovieContract.MovieEntry.CONTENT_URI, movieValues);
+        resolver.update(MovieContract.MovieEntry.buildMovieWithIdUri(movie.getId()), movieValues,
+                null, null);
 
         // ...then trailers
         Vector<ContentValues> trailerVector = new Vector<>(movie.getTrailers().size());
@@ -306,9 +307,9 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
         for(Movie movie: movieList) {
             if (moviesToUpdate.contains(movie.getId())) {
                 Log.v(LOG_TAG, "Updating details for movie: " + movie.getTitle());
-/*                ContentValues values = movieToDetailedContentValues(movie);
+                ContentValues values = movieToDetailedContentValues(movie);
                 resolver.update(MovieContract.MovieEntry.buildMovieWithIdUri(movie.getId()),
-                        values, null, null);*/
+                        values, null, null);
             } else {
                 Log.v(LOG_TAG, "New movie: " + movie.getId() + " - " + movie.getTitle());
                 fullDetailVector.add(movieToDetailedContentValues(movie));
