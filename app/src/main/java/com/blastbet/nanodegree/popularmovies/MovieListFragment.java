@@ -125,7 +125,7 @@ public class MovieListFragment
             uri = MovieContract.MovieEntry.CONTENT_URI;
             sortOrder = MovieContract.MovieEntry.TABLE_NAME +
                     "." + MovieContract.MovieEntry._ID + " ASC";
-            selection = MovieContract.MovieEntry.COLUMN_FAVORITE + " LIKE 1";
+            selection = MovieContract.MovieEntry.COLUMN_FAVORITE + " = 1";
         } else {
             throw new UnsupportedOperationException("Unsupported movie list selection (" + mSortKey + ")");
         }
