@@ -26,6 +26,8 @@ public class MovieProvider extends ContentProvider {
     private static final int FAVORITE_MOVIE = 300;
     private static final int TOP_RATED_MOVIE = 400;
 
+    private static final int OTHER_MOVIE = 900;
+
     private static final int REVIEW = 2000;
     private static final int TRAILER = 3000;
 
@@ -38,6 +40,7 @@ public class MovieProvider extends ContentProvider {
         matcher.addURI(AUTHORITY, MovieContract.PATH_FAVORITE_MOVIE , FAVORITE_MOVIE);
         matcher.addURI(AUTHORITY, MovieContract.PATH_POPULAR_MOVIE  , POPULAR_MOVIE);
         matcher.addURI(AUTHORITY, MovieContract.PATH_TOP_RATED_MOVIE, TOP_RATED_MOVIE);
+        matcher.addURI(AUTHORITY, MovieContract.PATH_OTHER_MOVIE    , OTHER_MOVIE);
 
         matcher.addURI(AUTHORITY, MovieContract.PATH_REVIEW + "/#"   , REVIEW);
         matcher.addURI(AUTHORITY, MovieContract.PATH_TRAILER + "/#"  , TRAILER);
@@ -58,6 +61,28 @@ public class MovieProvider extends ContentProvider {
                         "." + MovieContract.MovieEntry.COLUMN_MOVIE_ID
         );
     }
+
+    private static String sOtherMoviesSelection =
+            MovieContract.MovieEntry.COLUMN_FAVORITE + "=0" +
+                    " AND " +
+                    MovieContract.MovieEntry.COLUMN_MOVIE_ID +
+                    " NOT IN (SELECT " + MovieContract.PopularEntry.COLUMN_MOVIE_ID +
+                    " FROM " + MovieContract.PopularEntry.TABLE_NAME + ")" +
+                    " AND " +
+                    MovieContract.MovieEntry.COLUMN_MOVIE_ID +
+                    " NOT IN (SELECT " + MovieContract.TopRatedEntry.COLUMN_MOVIE_ID +
+                    " FROM " + MovieContract.TopRatedEntry.TABLE_NAME + ");";
+
+    private static SQLiteQueryBuilder sOtherMoviesQueryBuilder;
+    static {
+        sOtherMoviesQueryBuilder = new SQLiteQueryBuilder();
+        sOtherMoviesQueryBuilder.setTables(
+                MovieContract.MovieEntry.TABLE_NAME +
+                        " WHERE " +
+                        sOtherMoviesSelection
+        );
+    }
+
 
     private static SQLiteQueryBuilder sPopularMoviesQueryBuilder;
     static {
@@ -148,6 +173,10 @@ public class MovieProvider extends ContentProvider {
                 retCursor = sTopRatedMoviesQueryBuilder.query(
                         db, projection, selection, selectionArgs, null, null, sortOrder);
                 break;
+            case OTHER_MOVIE:
+                retCursor = sOtherMoviesQueryBuilder.query(
+                        db, projection, selection, selectionArgs, null, null, sortOrder);
+                break;
             case MOVIE_WITH_ID:
                 movieId = MovieContract.MovieEntry.getIdFromUri(uri);
                 retCursor = db.query(MovieContract.MovieEntry.TABLE_NAME,
@@ -188,6 +217,8 @@ public class MovieProvider extends ContentProvider {
                 return MovieContract.PopularEntry.CONTENT_TYPE;
             case TOP_RATED_MOVIE:
                 return MovieContract.TopRatedEntry.CONTENT_TYPE;
+            case OTHER_MOVIE:
+                return MovieContract.MovieEntry.CONTENT_TYPE;
             case REVIEW:
                 return MovieContract.ReviewEntry.CONTENT_TYPE;
             case TRAILER:
@@ -297,6 +328,10 @@ public class MovieProvider extends ContentProvider {
                 rowsDeleted = db.delete(
                         MovieContract.TopRatedEntry.TABLE_NAME, selection, selectionArgs);
                 break;
+            case OTHER_MOVIE:
+                rowsDeleted = db.delete(
+                        MovieContract.MovieEntry.TABLE_NAME, sOtherMoviesSelection, null);
+                break;
             case REVIEW:
                 rowsDeleted = db.delete(
                         MovieContract.ReviewEntry.TABLE_NAME, selection, selectionArgs);
@@ -319,10 +354,17 @@ public class MovieProvider extends ContentProvider {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         final int match = sUriMatcher.match(uri);
         int rowsUpdated;
+
         switch (match) {
             case MOVIE:
                 rowsUpdated = db.update(
                         MovieContract.MovieEntry.TABLE_NAME, values, selection, selectionArgs);
+                break;
+            case MOVIE_WITH_ID:
+                final long movieId = MovieContract.MovieEntry.getIdFromUri(uri);
+                rowsUpdated = db.update(
+                        MovieContract.MovieEntry.TABLE_NAME, values,
+                        sMovieIdSelection, new String[]{Long.toString(movieId)});
                 break;
             case FAVORITE_MOVIE:
                 rowsUpdated = db.update(

@@ -72,10 +72,12 @@
                 android:id="@+id/text_movie_detail_rating"
                 android:text="9.9/10\n(1023000 votes)"
                 android:textSize="18sp" />
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="@dimen/movie_detail_info_field_height"
-                android:text="@string/mark_as_favorite"
+            <ToggleButton
+                android:layout_width="@dimen/button_size"
+                android:layout_height="@dimen/button_size"
+                android:textOff=""
+                android:textOn=""
+                android:background="@drawable/star_button"
                 android:id="@+id/button_mark_as_favorite"/>
         </LinearLayout>
     </LinearLayout>

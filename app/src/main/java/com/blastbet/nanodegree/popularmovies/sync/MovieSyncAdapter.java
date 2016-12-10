@@ -27,7 +27,10 @@ import com.blastbet.nanodegree.popularmovies.tmdb.MovieTrailer;
 import com.blastbet.nanodegree.popularmovies.tmdb.MovieTrailerList;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Vector;
 
 import okhttp3.OkHttpClient;
@@ -50,8 +53,10 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
 
     private static final int SYNC_INTERVAL = 60 * 60 * 24;
     private static final int SYNC_FLEXTIME = SYNC_INTERVAL / 24;
+
     private Retrofit mRetrofit;
     private Call<MovieList> mMovieListCall;
+
     private MovieApi mMovieApi;
 
     private static final String MOVIEDB_BASE_URL = "http://api.themoviedb.org/3/";
@@ -114,8 +119,13 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
         switch (syncType) {
             case MOVIE_SYNC_TYPE_LIST:
                 final String sortKey = getSortKey();
+                if (sortKey.equalsIgnoreCase(getContext().getString(R.string.pref_sort_by_favorites))) {
+                    Log.v(LOG_TAG, "Not updating favorites list");
+                    return;
+                }
                 final MovieList movies = fetchMovies(sortKey);
                 updateMoviesList(movies, sortKey);
+                cleanUnreferencedMovies();
                 break;
             case MOVIE_SYNC_TYPE_GET_DETAILS:
                 final Movie movie = fetchMovieDetails(movieId);
@@ -234,21 +244,81 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
         Log.d(LOG_TAG, "Reviews sync finished, inserted " + inserted + " rows to reviews table.");
     }
 
+
+    private Set<Long> getMovieIdsInDatabase(final List<Movie> movies) {
+        // Construct string representation of an array of the movie IDs for querying IDs already
+        // in the database
+        String selectionArgs[] = new String[movies.size()];
+        StringBuilder selection = new StringBuilder();
+        ContentResolver resolver = getContext().getContentResolver();
+
+        selection.append(MovieContract.MovieEntry.COLUMN_MOVIE_ID);
+        selection.append(" IN (");
+        for(int i = 0; i < movies.size(); i++) {
+            if (i > 0) selection.append(',');
+
+            selection.append('?');
+            selectionArgs[i] = Long.toString(movies.get(i).getId());
+        }
+        selection.append(')');
+
+        Cursor refListCursor = resolver.query(
+                MovieContract.MovieEntry.CONTENT_URI,
+                new String[]{MovieContract.MovieEntry.COLUMN_MOVIE_ID},
+                selection.toString(),
+                selectionArgs,
+                null);
+
+        refListCursor.moveToFirst();
+        final int count = refListCursor.getCount();
+
+        Set<Long> result = new HashSet<>(count);
+
+        for(int i = 0; i < count; i++) {
+            result.add(refListCursor.getLong(0));
+            refListCursor.moveToNext();
+        }
+
+        refListCursor.close();
+        return result;
+    }
+
+    private void cleanUnreferencedMovies() {
+        ContentResolver resolver = getContext().getContentResolver();
+        resolver.delete(MovieContract.URI_OTHER_MOVIE, null, null);
+    }
+
     private void updateMoviesList(final MovieList movies, final String sortKey) {
         List<Movie> movieList = movies.getMovieList();
-        Vector<ContentValues> fullDetailVector = new Vector<ContentValues>(movieList.size());
-        Vector<ContentValues> movieIdVector = new Vector<ContentValues>(movieList.size());
+        Vector<ContentValues> fullDetailVector = null;
+        Vector<ContentValues> movieIdVector = null;
+        Set<Long> moviesToUpdate = getMovieIdsInDatabase(movieList);
 
-        for(Movie movie: movieList) {
-            fullDetailVector.add(movieToDetailedContentValues(movie));
-            movieIdVector.add(movieToPlainIdContentValues(movie));
+        int numNewMovies = movieList.size() - moviesToUpdate.size();
+
+        if (numNewMovies > 0) {
+            fullDetailVector = new Vector<ContentValues>(numNewMovies);
+            movieIdVector = new Vector<ContentValues>(numNewMovies);
         }
 
         ContentResolver resolver = getContext().getContentResolver();
 
+        for(Movie movie: movieList) {
+            if (moviesToUpdate.contains(movie.getId())) {
+                Log.v(LOG_TAG, "Updating details for movie: " + movie.getTitle());
+/*                ContentValues values = movieToDetailedContentValues(movie);
+                resolver.update(MovieContract.MovieEntry.buildMovieWithIdUri(movie.getId()),
+                        values, null, null);*/
+            } else {
+                Log.v(LOG_TAG, "New movie: " + movie.getId() + " - " + movie.getTitle());
+                fullDetailVector.add(movieToDetailedContentValues(movie));
+                movieIdVector.add(movieToPlainIdContentValues(movie));
+            }
+        }
+
         int moviesInserted = 0;
 
-        if (fullDetailVector.size() > 0) {
+        if (fullDetailVector != null && fullDetailVector.size() > 0) {
             ContentValues cValueArray[] = new ContentValues[fullDetailVector.size()];
             fullDetailVector.toArray(cValueArray);
             moviesInserted = resolver.bulkInsert(MovieContract.MovieEntry.CONTENT_URI, cValueArray);

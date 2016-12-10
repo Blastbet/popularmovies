@@ -16,7 +16,7 @@ import com.blastbet.nanodegree.popularmovies.data.MovieContract.FavoriteEntry;
  */
 public class MovieDBHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
 
     protected static final String DATABASE_NAME = "movie.db";
 
@@ -40,7 +40,8 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 MovieEntry.COLUMN_OVERVIEW + " TEXT NOT NULL, " +
                 MovieEntry.COLUMN_RUNTIME + " TEXT, " +
                 MovieEntry.COLUMN_RELEASE_DATE + " INTEGER NOT NULL, " +
-                MovieEntry.COLUMN_VOTE_AVERAGE + " TEXT NOT NULL" +
+                MovieEntry.COLUMN_VOTE_AVERAGE + " TEXT NOT NULL," +
+                MovieEntry.COLUMN_FAVORITE + " INTEGER DEFAULT 0" +
                 " );";
 
         final String SQL_CREATE_POPULAR_MOVIE_TABLE = "CREATE TABLE " + PopularEntry.TABLE_NAME + " (" +

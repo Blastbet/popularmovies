@@ -1,11 +1,10 @@
 package com.blastbet.nanodegree.popularmovies;
 
-import android.content.Context;
-import android.database.ContentObserver;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -18,31 +17,25 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.blastbet.nanodegree.popularmovies.data.MovieContract;
 import com.blastbet.nanodegree.popularmovies.sync.MovieSyncAdapter;
-import com.blastbet.nanodegree.popularmovies.tmdb.Movie;
-import com.blastbet.nanodegree.popularmovies.tmdb.MovieReview;
-import com.blastbet.nanodegree.popularmovies.tmdb.MovieTrailer;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
-public class MovieDetailsFragment extends Fragment {
+public class MovieDetailsFragment extends Fragment       {
     private static final String LOG_TAG = MovieDetailsFragment.class.getSimpleName();
 
     // the fragment initialization parameter
@@ -53,14 +46,10 @@ public class MovieDetailsFragment extends Fragment {
     private Cursor mDetailsCursor = null;
     private Cursor mTrailerCursor = null;
     private Cursor mReviewCursor = null;
-    //private Movie mMovie;
 
     private long mMovieId = -1;
 
-    //    private List<MovieReview> mReviews;
     private TrailerCursorAdapter mTrailerAdapter = null;
-
-//    private List<MovieTrailer> mTrailers;
 
     private Unbinder mUnbinder = null;
 
@@ -72,6 +61,7 @@ public class MovieDetailsFragment extends Fragment {
     @BindView(R.id.image_movie_detail_poster) ImageView mPosterView;
     @BindView(R.id.trailer_list_view) ListView mTrailerListView;
     @BindView(R.id.review_list_view) ListView mReviewListView;
+    @BindView(R.id.button_mark_as_favorite) ToggleButton mFavoriteButton;
 
     private SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyy");
 
@@ -89,7 +79,8 @@ public class MovieDetailsFragment extends Fragment {
             MovieContract.MovieEntry.COLUMN_OVERVIEW,
             MovieContract.MovieEntry.COLUMN_RUNTIME,
             MovieContract.MovieEntry.COLUMN_RELEASE_DATE,
-            MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE
+            MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE,
+            MovieContract.MovieEntry.COLUMN_FAVORITE
     };
 
     static final int COL_MOVIE_MOVIE_ID     = 1;
@@ -99,6 +90,7 @@ public class MovieDetailsFragment extends Fragment {
     static final int COL_MOVIE_RUNTIME      = 5;
     static final int COL_MOVIE_RELEASE_DATE = 6;
     static final int COL_MOVIE_VOTE_AVERAGE = 7;
+    static final int COL_MOVIE_FAVORITE     = 8;
 
     private static final String[] MOVIE_REVIEW_COLUMNS = {
             MovieContract.ReviewEntry._ID,
@@ -312,6 +304,16 @@ public class MovieDetailsFragment extends Fragment {
         mRuntimeView.setText(details.getString(COL_MOVIE_RUNTIME));
         mRatingView.setText(details.getString(COL_MOVIE_VOTE_AVERAGE));
 
+        if (details.getInt(COL_MOVIE_FAVORITE) == 0) {
+            mFavoriteButton.setChecked(false);
+            Log.v(LOG_TAG, "Favorite");
+        } else {
+            mFavoriteButton.setChecked(true);
+            Log.v(LOG_TAG, "Not Favorite");
+        }
+
+        mFavoriteButton.setOnCheckedChangeListener(mFavoriteButtonListener);
+
         mMoviePosterLoader = new MoviePosterLoader(getContext(),
                 details.getString(COL_MOVIE_POSTER_PATH));
         mMoviePosterLoader.loadMoviePoster(new Target() {
@@ -337,4 +339,17 @@ public class MovieDetailsFragment extends Fragment {
         mTrailerAdapter.swapCursor(trailers);
     }
 
+    private ToggleButton.OnCheckedChangeListener mFavoriteButtonListener =
+            new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    ContentValues cv = new ContentValues();
+                    cv.put(MovieContract.MovieEntry.COLUMN_FAVORITE, b ? true : false);
+                    ContentResolver resolver = getContext().getContentResolver();
+                    final String selection = MovieContract.MovieEntry.COLUMN_MOVIE_ID + " = ?";
+                    resolver.update(MovieContract.MovieEntry.CONTENT_URI, cv, selection,
+                            new String[]{Long.toString(mMovieId)});
+                    Log.v(LOG_TAG, "Setting movie " + mMovieId + " as favorite.");
+                }
+            };
 }

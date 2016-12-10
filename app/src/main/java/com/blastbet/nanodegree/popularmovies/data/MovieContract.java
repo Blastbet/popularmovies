@@ -22,6 +22,12 @@ public class MovieContract {
     public static final String PATH_TOP_RATED_MOVIE = "top_rated";
     public static final String PATH_FAVORITE_MOVIE = "favorite";
 
+
+    public static final String PATH_OTHER_MOVIE = "other_movie";
+
+    public static final Uri URI_OTHER_MOVIE =
+            BASE_CONTENT_URI.buildUpon().appendPath(PATH_OTHER_MOVIE).build();
+
     public static final class MovieEntry implements BaseColumns {
 
         public static final Uri CONTENT_URI =
@@ -44,6 +50,7 @@ public class MovieContract {
         public static final String COLUMN_RUNTIME      = "runtime";
         public static final String COLUMN_RELEASE_DATE = "release_date";
         public static final String COLUMN_VOTE_AVERAGE = "vote_average";
+        public static final String COLUMN_FAVORITE     = "favorite";
 
         public static Uri buildMovieUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);

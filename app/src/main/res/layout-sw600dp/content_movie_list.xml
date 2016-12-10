@@ -13,12 +13,14 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
+        android:layout_marginTop="?attr/actionBarSize"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:layout="@layout/fragment_movie_list" />
 
     <FrameLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
+        android:layout_marginTop="?attr/actionBarSize"
         android:id="@+id/movie_details_container"
         android:layout_weight="2"/>
     <!--<fragment xmlns:android="http://schemas.android.com/apk/res/android"
