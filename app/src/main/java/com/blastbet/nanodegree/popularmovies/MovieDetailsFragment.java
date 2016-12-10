@@ -186,6 +186,7 @@ public class MovieDetailsFragment extends Fragment       {
             getLoaderManager().initLoader(MOVIE_DETAILS_LOADER, args, detailsLoaderCallbacks);
             getLoaderManager().initLoader(MOVIE_REVIEWS_LOADER, args, reviewsLoaderCallbacks);
             getLoaderManager().initLoader(MOVIE_TRAILERS_LOADER, args, trailersLoaderCallbacks);
+            reloadMovieDetails();
         } else {
             Log.v(LOG_TAG, "Movie id was invalid when activity for movieDetailsFragment was created");
         }
