@@ -23,8 +23,7 @@ public class MovieProvider extends ContentProvider {
     private static final int MOVIE_WITH_ID = 101;
 
     private static final int POPULAR_MOVIE = 200;
-    private static final int FAVORITE_MOVIE = 300;
-    private static final int TOP_RATED_MOVIE = 400;
+    private static final int TOP_RATED_MOVIE = 300;
 
     private static final int OTHER_MOVIE = 900;
 
@@ -37,7 +36,6 @@ public class MovieProvider extends ContentProvider {
 
         matcher.addURI(AUTHORITY, MovieContract.PATH_MOVIE          , MOVIE);
 
-        matcher.addURI(AUTHORITY, MovieContract.PATH_FAVORITE_MOVIE , FAVORITE_MOVIE);
         matcher.addURI(AUTHORITY, MovieContract.PATH_POPULAR_MOVIE  , POPULAR_MOVIE);
         matcher.addURI(AUTHORITY, MovieContract.PATH_TOP_RATED_MOVIE, TOP_RATED_MOVIE);
         matcher.addURI(AUTHORITY, MovieContract.PATH_OTHER_MOVIE    , OTHER_MOVIE);
@@ -161,10 +159,6 @@ public class MovieProvider extends ContentProvider {
                 retCursor = db.query(MovieContract.MovieEntry.TABLE_NAME,
                         projection, selection, selectionArgs, null, null, sortOrder);
                 break;
-            case FAVORITE_MOVIE:
-                retCursor = sFavoriteMoviesQueryBuilder.query(
-                        db, projection, selection, selectionArgs, null, null, sortOrder);
-                break;
             case POPULAR_MOVIE:
                 retCursor = sPopularMoviesQueryBuilder.query(
                         db, projection, selection, selectionArgs, null, null, sortOrder);
@@ -211,8 +205,6 @@ public class MovieProvider extends ContentProvider {
                 return MovieContract.MovieEntry.CONTENT_TYPE;
             case MOVIE_WITH_ID:
                 return MovieContract.MovieEntry.CONTENT_ITEM_TYPE;
-            case FAVORITE_MOVIE:
-                return MovieContract.FavoriteEntry.CONTENT_TYPE;
             case POPULAR_MOVIE:
                 return MovieContract.PopularEntry.CONTENT_TYPE;
             case TOP_RATED_MOVIE:
@@ -247,15 +239,6 @@ public class MovieProvider extends ContentProvider {
                 );
                 if (_id > 0) {
                     returnUri = MovieContract.MovieEntry.buildMovieUri(_id);
-                } else {
-                    throw new android.database.SQLException("Failed to insert row into " + uri);
-                }
-                break;
-            }
-            case FAVORITE_MOVIE: {
-                final long _id = db.insert(MovieContract.FavoriteEntry.TABLE_NAME, null, values);
-                if (_id > 0) {
-                    returnUri = MovieContract.FavoriteEntry.buildFavoriteMovieUri(_id);
                 } else {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 }
@@ -318,10 +301,6 @@ public class MovieProvider extends ContentProvider {
                 rowsDeleted = db.delete(
                         MovieContract.MovieEntry.TABLE_NAME, selection, selectionArgs);
                 break;
-            case FAVORITE_MOVIE:
-                rowsDeleted = db.delete(
-                        MovieContract.FavoriteEntry.TABLE_NAME, selection, selectionArgs);
-                break;
             case POPULAR_MOVIE:
                 rowsDeleted = db.delete(
                         MovieContract.PopularEntry.TABLE_NAME, selection, selectionArgs);
@@ -368,10 +347,6 @@ public class MovieProvider extends ContentProvider {
                         MovieContract.MovieEntry.TABLE_NAME, values,
                         sMovieIdSelection, new String[]{Long.toString(movieId)});
                 break;
-            case FAVORITE_MOVIE:
-                rowsUpdated = db.update(
-                        MovieContract.FavoriteEntry.TABLE_NAME, values, selection, selectionArgs);
-                break;
             case POPULAR_MOVIE:
                 rowsUpdated = db.update(
                         MovieContract.PopularEntry.TABLE_NAME, values, selection, selectionArgs);
@@ -413,22 +388,6 @@ public class MovieProvider extends ContentProvider {
                                 null,
                                 value,
                                 SQLiteDatabase.CONFLICT_IGNORE);
-                        if (_id != -1) insertCount++;
-                    }
-                    db.setTransactionSuccessful();
-                } finally {
-                    db.endTransaction();
-                }
-                break;
-            case FAVORITE_MOVIE:
-                db.beginTransaction();
-                try {
-                    for (ContentValues value: values) {
-                        final long _id = db.insertWithOnConflict(
-                                MovieContract.FavoriteEntry.TABLE_NAME,
-                                null,
-                                value,
-                                SQLiteDatabase.CONFLICT_REPLACE);
                         if (_id != -1) insertCount++;
                     }
                     db.setTransactionSuccessful();
