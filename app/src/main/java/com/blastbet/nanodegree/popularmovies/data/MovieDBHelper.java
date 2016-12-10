@@ -9,14 +9,13 @@ import com.blastbet.nanodegree.popularmovies.data.MovieContract.ReviewEntry;
 import com.blastbet.nanodegree.popularmovies.data.MovieContract.TrailerEntry;
 import com.blastbet.nanodegree.popularmovies.data.MovieContract.PopularEntry;
 import com.blastbet.nanodegree.popularmovies.data.MovieContract.TopRatedEntry;
-import com.blastbet.nanodegree.popularmovies.data.MovieContract.FavoriteEntry;
 
 /**
  * Created by ilkka on 18.6.2016.
  */
 public class MovieDBHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 5;
 
     protected static final String DATABASE_NAME = "movie.db";
 
@@ -58,14 +57,6 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 MovieEntry.TABLE_NAME + " (" + MovieEntry.COLUMN_MOVIE_ID + ")" +
                 " );";
 
-        final String SQL_CREATE_FAVORITE_MOVIE_TABLE = "CREATE TABLE " + FavoriteEntry.TABLE_NAME + " (" +
-                FavoriteEntry._ID + " INTEGER PRIMARY KEY, " +
-                FavoriteEntry.COLUMN_MOVIE_ID + " INTEGER UNIQUE NOT NULL, " +
-                " FOREIGN KEY (" + FavoriteEntry.COLUMN_MOVIE_ID + ") REFERENCES " +
-                MovieEntry.TABLE_NAME + " (" + MovieEntry.COLUMN_MOVIE_ID + ")" +
-                " );";
-
-
         final String SQL_CREATE_REVIEW_TABLE = "CREATE TABLE " + ReviewEntry.TABLE_NAME + " (" +
                 ReviewEntry._ID + " INTEGER PRIMARY KEY, " +
                 ReviewEntry.COLUMN_MOVIE_ID + " INTEGER NOT NULL, " +
@@ -79,7 +70,7 @@ public class MovieDBHelper extends SQLiteOpenHelper {
         final String SQL_CREATE_TRAILER_TABLE = "CREATE TABLE " + TrailerEntry.TABLE_NAME + " (" +
                 TrailerEntry._ID + " INTEGER PRIMARY KEY, " +
                 TrailerEntry.COLUMN_MOVIE_ID + " INTEGER NOT NULL, " +
-                TrailerEntry.COLUMN_KEY + " TEXT NOT NULL, " +
+                TrailerEntry.COLUMN_KEY + " TEXT UNIQUE NOT NULL, " +
                 TrailerEntry.COLUMN_NAME + " TEXT NOT NULL, " +
                 TrailerEntry.COLUMN_SITE + " TEXT NOT NULL, " +
                 TrailerEntry.COLUMN_SIZE + " INTEGER NOT NULL, " +
@@ -92,7 +83,6 @@ public class MovieDBHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_CREATE_MOVIE_TABLE);
         db.execSQL(SQL_CREATE_POPULAR_MOVIE_TABLE);
         db.execSQL(SQL_CREATE_TOP_RATED_MOVIE_TABLE);
-        db.execSQL(SQL_CREATE_FAVORITE_MOVIE_TABLE);
         db.execSQL(SQL_CREATE_REVIEW_TABLE);
         db.execSQL(SQL_CREATE_TRAILER_TABLE);
     }
@@ -102,9 +92,9 @@ public class MovieDBHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + MovieEntry.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + PopularEntry.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TopRatedEntry.TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS " + FavoriteEntry.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + ReviewEntry.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TrailerEntry.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS favorite");
         onCreate(db);
     }
 }

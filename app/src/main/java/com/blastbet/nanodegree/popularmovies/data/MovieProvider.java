@@ -47,19 +47,6 @@ public class MovieProvider extends ContentProvider {
         return matcher;
     }
 
-    private static SQLiteQueryBuilder sFavoriteMoviesQueryBuilder;
-    static {
-        sFavoriteMoviesQueryBuilder = new SQLiteQueryBuilder();
-        sFavoriteMoviesQueryBuilder.setTables(
-                MovieContract.FavoriteEntry.TABLE_NAME + " INNER JOIN " +
-                        MovieContract.MovieEntry.TABLE_NAME +
-                        " ON " + MovieContract.FavoriteEntry.TABLE_NAME +
-                        "." + MovieContract.FavoriteEntry.COLUMN_MOVIE_ID +
-                        " = " + MovieContract.MovieEntry.TABLE_NAME +
-                        "." + MovieContract.MovieEntry.COLUMN_MOVIE_ID
-        );
-    }
-
     private static String sOtherMoviesSelection =
             MovieContract.MovieEntry.COLUMN_FAVORITE + "=0" +
                     " AND " +

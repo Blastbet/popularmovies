@@ -20,8 +20,6 @@ public class MovieContract {
 
     public static final String PATH_POPULAR_MOVIE = "popular";
     public static final String PATH_TOP_RATED_MOVIE = "top_rated";
-    public static final String PATH_FAVORITE_MOVIE = "favorite";
-
 
     public static final String PATH_OTHER_MOVIE = "other_movie";
 
@@ -101,26 +99,6 @@ public class MovieContract {
         public static final String COLUMN_MOVIE_ID    = "movie_id";
 
         public static final Uri buildTopRatedMovieUri(long id) {
-            return ContentUris.withAppendedId(CONTENT_URI, id);
-        }
-    }
-
-    public static final class FavoriteEntry implements BaseColumns {
-        public static final Uri CONTENT_URI =
-                BASE_CONTENT_URI.buildUpon().appendPath(PATH_FAVORITE_MOVIE).build();
-
-        public static final String CONTENT_TYPE =
-                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_FAVORITE_MOVIE;
-
-        public static final String CONTENT_ITEM_TYPE =
-                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_FAVORITE_MOVIE;
-
-        public static final String TABLE_NAME = "favorite_movie";
-
-        // TMDB id for the movie (foreign key into the movie table)
-        public static final String COLUMN_MOVIE_ID    = "movie_id";
-
-        public static final Uri buildFavoriteMovieUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
     }
