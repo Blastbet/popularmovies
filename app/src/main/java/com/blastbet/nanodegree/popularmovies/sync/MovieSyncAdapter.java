@@ -129,7 +129,9 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                 break;
             case MOVIE_SYNC_TYPE_GET_DETAILS:
                 final Movie movie = fetchMovieDetails(movieId);
-                updateMovieDetails(movie);
+                if (movie != null) {
+                    updateMovieDetails(movie);
+                }
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown movie sync type: " + syncType);
@@ -152,8 +154,8 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
         try {
             movie = movieCall.execute().body();
             final List<MovieReview> movieReviews = reviewCall.execute().body().getMovieReviews();
-            movie.setReviews(movieReviews);
             Log.e(LOG_TAG, "Received " + movieReviews.size() + " reviews");
+            movie.setReviews(movieReviews);
             final List<MovieTrailer> movieTrailers = trailerCall.execute().body().getMovieTrailers();
             Log.e(LOG_TAG, "Received " + movieTrailers.size() + " trailers");
             movie.setTrailers(movieTrailers);
@@ -232,7 +234,6 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
         addTrailersToContentValuesVector(movie.getId(), movie.getTrailers(), trailerVector);
         ContentValues trailersArray[] = new ContentValues[trailerVector.size()];
         trailerVector.toArray(trailersArray);
-        Log.d(LOG_TAG, "Inserting trailers " + trailerVector.size() + ": " + trailersArray[0].toString());
         int inserted = resolver.bulkInsert(MovieContract.TrailerEntry.buildTrailerWithMovieIdUri(movie.getId()), trailersArray);
         Log.d(LOG_TAG, "Trailers sync finished, inserted " + inserted + " rows to trailers table.");
 
