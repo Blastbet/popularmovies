@@ -126,6 +126,8 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                 final MovieList movies = fetchMovies(sortKey);
                 updateMoviesList(movies, sortKey);
                 cleanUnreferencedMovies();
+                cleanUnreferencedReviews();
+                cleanUnreferencedTrailers();
                 break;
             case MOVIE_SYNC_TYPE_GET_DETAILS:
                 final Movie movie = fetchMovieDetails(movieId);
@@ -288,6 +290,16 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
     private void cleanUnreferencedMovies() {
         ContentResolver resolver = getContext().getContentResolver();
         resolver.delete(MovieContract.URI_OTHER_MOVIE, null, null);
+    }
+
+    private void cleanUnreferencedReviews() {
+        ContentResolver resolver = getContext().getContentResolver();
+        resolver.delete(MovieContract.URI_UNREFERENCED_REVIEW, null, null);
+    }
+
+    private void cleanUnreferencedTrailers() {
+        ContentResolver resolver = getContext().getContentResolver();
+        resolver.delete(MovieContract.URI_UNREFERENCED_TRAILER, null, null);
     }
 
     private void updateMoviesList(final MovieList movies, final String sortKey) {

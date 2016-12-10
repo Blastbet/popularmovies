@@ -28,24 +28,62 @@ public class MovieProvider extends ContentProvider {
     private static final int OTHER_MOVIE = 900;
 
     private static final int REVIEW = 2000;
+    private static final int UNREFERENCED_REVIEW = 2001;
+
     private static final int TRAILER = 3000;
+    private static final int UNREFERENCED_TRAILER = 3001;
 
     static UriMatcher buildUriMatcher() {
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
         final String AUTHORITY = MovieContract.CONTENT_AUTHORITY;
 
         matcher.addURI(AUTHORITY, MovieContract.PATH_MOVIE          , MOVIE);
+        matcher.addURI(AUTHORITY, MovieContract.PATH_MOVIE + "/#"   , MOVIE_WITH_ID);
 
         matcher.addURI(AUTHORITY, MovieContract.PATH_POPULAR_MOVIE  , POPULAR_MOVIE);
         matcher.addURI(AUTHORITY, MovieContract.PATH_TOP_RATED_MOVIE, TOP_RATED_MOVIE);
         matcher.addURI(AUTHORITY, MovieContract.PATH_OTHER_MOVIE    , OTHER_MOVIE);
 
-        matcher.addURI(AUTHORITY, MovieContract.PATH_REVIEW + "/#"   , REVIEW);
-        matcher.addURI(AUTHORITY, MovieContract.PATH_TRAILER + "/#"  , TRAILER);
-        matcher.addURI(AUTHORITY, MovieContract.PATH_MOVIE + "/#"   , MOVIE_WITH_ID);
+        matcher.addURI(AUTHORITY, MovieContract.PATH_REVIEW + "/#"      , REVIEW);
+        matcher.addURI(AUTHORITY, MovieContract.PATH_UNREFERENCED_REVIEW, UNREFERENCED_REVIEW);
+
+        matcher.addURI(AUTHORITY, MovieContract.PATH_TRAILER + "/#"      , TRAILER);
+        matcher.addURI(AUTHORITY, MovieContract.PATH_UNREFERENCED_TRAILER, UNREFERENCED_TRAILER);
 
         return matcher;
     }
+
+
+    private static String sUnreferencedTrailersSelection =
+            MovieContract.TrailerEntry.COLUMN_MOVIE_ID +
+                    " NOT IN (SELECT " + MovieContract.MovieEntry.COLUMN_MOVIE_ID +
+                    " FROM " + MovieContract.MovieEntry.TABLE_NAME + ")";
+
+    private static SQLiteQueryBuilder sUnreferencedTrailersQueryBuilder;
+    static {
+        sUnreferencedTrailersQueryBuilder = new SQLiteQueryBuilder();
+        sUnreferencedTrailersQueryBuilder.setTables(
+                MovieContract.TrailerEntry.TABLE_NAME +
+                        " WHERE " +
+                        sUnreferencedTrailersSelection
+        );
+    }
+
+    private static String sUnreferencedReviewsSelection =
+            MovieContract.ReviewEntry.COLUMN_MOVIE_ID +
+                    " NOT IN (SELECT " + MovieContract.MovieEntry.COLUMN_MOVIE_ID +
+                    " FROM " + MovieContract.MovieEntry.TABLE_NAME + ")";
+
+    private static SQLiteQueryBuilder sUnreferencedReviewsQueryBuilder;
+    static {
+        sUnreferencedReviewsQueryBuilder = new SQLiteQueryBuilder();
+        sUnreferencedReviewsQueryBuilder.setTables(
+                MovieContract.ReviewEntry.TABLE_NAME +
+                        " WHERE " +
+                        sUnreferencedReviewsSelection
+        );
+    }
+
 
     private static String sOtherMoviesSelection =
             MovieContract.MovieEntry.COLUMN_FAVORITE + "=0" +
@@ -67,7 +105,6 @@ public class MovieProvider extends ContentProvider {
                         sOtherMoviesSelection
         );
     }
-
 
     private static SQLiteQueryBuilder sPopularMoviesQueryBuilder;
     static {
@@ -170,11 +207,20 @@ public class MovieProvider extends ContentProvider {
                         projection, sReviewIdSelection, new String[]{Long.toString(movieId)},
                         null, null, sortOrder);
                 break;
+            case UNREFERENCED_REVIEW:
+                retCursor = sUnreferencedReviewsQueryBuilder.query(
+                        db, projection, selection, selectionArgs, null, null, sortOrder);
+                break;
+
             case TRAILER:
                 movieId = MovieContract.TrailerEntry.getIdFromUri(uri);
                 retCursor = db.query(MovieContract.TrailerEntry.TABLE_NAME,
                         projection, sTrailerIdSelection, new String[]{Long.toString(movieId)},
                         null, null, sortOrder);
+                break;
+            case UNREFERENCED_TRAILER:
+                retCursor = sUnreferencedTrailersQueryBuilder.query(
+                        db, projection, selection, selectionArgs, null, null, sortOrder);
                 break;
             default:
                 throw new UnsupportedOperationException("Unsupported uri: " + uri);
@@ -304,9 +350,17 @@ public class MovieProvider extends ContentProvider {
                 rowsDeleted = db.delete(
                         MovieContract.ReviewEntry.TABLE_NAME, selection, selectionArgs);
                 break;
+            case UNREFERENCED_REVIEW:
+                rowsDeleted = db.delete(
+                        MovieContract.ReviewEntry.TABLE_NAME, sUnreferencedReviewsSelection, null);
+                break;
             case TRAILER:
                 rowsDeleted = db.delete(
-                        MovieContract.ReviewEntry.TABLE_NAME, selection, selectionArgs);
+                        MovieContract.TrailerEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+            case UNREFERENCED_TRAILER:
+                rowsDeleted = db.delete(
+                        MovieContract.TrailerEntry.TABLE_NAME, sUnreferencedTrailersSelection, null);
                 break;
             default:
                 throw new UnsupportedOperationException("Unsupported uri: " + uri);

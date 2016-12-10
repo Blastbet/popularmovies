@@ -16,7 +16,10 @@ public class MovieContract {
     public static final String PATH_MOVIE = "movie";
 
     public static final String PATH_REVIEW = "review";
+    public static final String PATH_UNREFERENCED_REVIEW = "unreferenced_review";
+
     public static final String PATH_TRAILER = "trailer";
+    public static final String PATH_UNREFERENCED_TRAILER = "unreferenced_trailer";
 
     public static final String PATH_POPULAR_MOVIE = "popular";
     public static final String PATH_TOP_RATED_MOVIE = "top_rated";
@@ -25,6 +28,13 @@ public class MovieContract {
 
     public static final Uri URI_OTHER_MOVIE =
             BASE_CONTENT_URI.buildUpon().appendPath(PATH_OTHER_MOVIE).build();
+
+    public static final Uri URI_UNREFERENCED_TRAILER =
+            BASE_CONTENT_URI.buildUpon().appendPath(PATH_UNREFERENCED_TRAILER).build();
+
+    public static final Uri URI_UNREFERENCED_REVIEW =
+            BASE_CONTENT_URI.buildUpon().appendPath(PATH_UNREFERENCED_REVIEW).build();
+
 
     public static final class MovieEntry implements BaseColumns {
 
