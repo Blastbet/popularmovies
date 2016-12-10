@@ -302,8 +302,8 @@ public class MovieDetailsFragment extends Fragment       {
         mOverviewView.setText(details.getString(COL_MOVIE_OVERVIEW));
         Date releaseDate = new Date(details.getLong(COL_MOVIE_RELEASE_DATE));
         mReleaseDateView.setText(mDateFormat.format(releaseDate));
-        mRuntimeView.setText(details.getString(COL_MOVIE_RUNTIME));
-        mRatingView.setText(details.getString(COL_MOVIE_VOTE_AVERAGE));
+        mRuntimeView.setText(details.getString(COL_MOVIE_RUNTIME) + "min");
+        mRatingView.setText(details.getString(COL_MOVIE_VOTE_AVERAGE) + " / 10");
 
         if (details.getInt(COL_MOVIE_FAVORITE) == 0) {
             mFavoriteButton.setChecked(false);
