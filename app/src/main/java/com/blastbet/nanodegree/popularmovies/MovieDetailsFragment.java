@@ -157,11 +157,13 @@ public class MovieDetailsFragment extends Fragment       {
         mTrailerListView.setAdapter(mTrailerAdapter);
         mTrailerListView.setLayoutManager(
                 new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL,false));
+        mTrailerListView.setNestedScrollingEnabled(false);
 
         mReviewAdapter = new ReviewCursorAdapter(getContext(), null);
         mReviewListView.setAdapter(mReviewAdapter);
         mReviewListView.setLayoutManager(
                 new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL,false));
+        mReviewListView.setNestedScrollingEnabled(false);
         return rootView;
     }
 
