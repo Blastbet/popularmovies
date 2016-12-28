@@ -1,65 +1,64 @@
 package com.blastbet.nanodegree.popularmovies;
 
+
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.support.v4.widget.CursorAdapter;
-import android.util.Log;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 /**
  * Created by ilkka on 3.11.2016.
  */
 
-public class TrailerCursorAdapter extends CursorAdapter {
+public class TrailerCursorAdapter extends CursorRecyclerViewAdapter<TrailerCursorAdapter.ViewHolder> {
 
-    private static final String LOG_TAG = TrailerCursorAdapter.class.getSimpleName();
+    Context mContext;
 
-    public TrailerCursorAdapter(Context context, Cursor c) {
-        super(context, c);
+    public TrailerCursorAdapter(Context context, Cursor cursor) {
+        super(context, cursor);
+        mContext = context;
     }
 
-    public TrailerCursorAdapter(Context context, Cursor c, boolean autoRequery) {
-        super(context, c, autoRequery);
-    }
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        View rootView;
+        TextView textViewTrailerName;
 
-    public TrailerCursorAdapter(Context context, Cursor c, int flags) {
-        super(context, c, flags);
+        Uri trailerURI;
+
+        public ViewHolder(View rootView) {
+            super(rootView);
+            this.rootView = rootView;
+            textViewTrailerName = (TextView) rootView.findViewById(R.id.text_trailer_name);
+        }
     }
 
     @Override
-    public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        LayoutInflater inflater = LayoutInflater.from(context);
-        Log.v(LOG_TAG, "New view... " + cursor.toString());
-        return inflater.inflate(R.layout.trailer_list_item, parent, false);
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        Context context = parent.getContext();
+        final View v = LayoutInflater.from(context).inflate(R.layout.trailer_list_item, parent, false);
+        ViewHolder holder = new ViewHolder(v);
+        return holder;
     }
 
     @Override
-    public void bindView(View view, final Context context, Cursor cursor) {
-        final String name = cursor.getString(MovieDetailsFragment.COL_TRAILER_NAME);
-        final String key = cursor.getString(MovieDetailsFragment.COL_TRAILER_KEY);
-        final String site = cursor.getString(MovieDetailsFragment.COL_TRAILER_SITE);
-
-        Log.v(LOG_TAG, "Binding " + name + " on site: " + site + " (" + key + ")");
-        TextView trailerName = (TextView) view.findViewById(R.id.text_trailer_name);
-        trailerName.setText(name);
+    public void onBindViewHolder(final ViewHolder viewHolder, Cursor cursor) {
+        viewHolder.textViewTrailerName.setText(cursor.getString(MovieDetailsFragment.COL_TRAILER_NAME));
         Uri.Builder uriBuilder = new Uri.Builder();
-        final Uri trailerUri = uriBuilder.scheme("http")
+        viewHolder.trailerURI = uriBuilder.scheme("http")
                 .authority("www.youtube.com")
                 .appendPath("watch")
-                .appendQueryParameter("v", key)
+                .appendQueryParameter("v", cursor.getString(MovieDetailsFragment.COL_TRAILER_KEY))
                 .build();
-        view.setOnClickListener(new View.OnClickListener() {
+        viewHolder.rootView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent trailerIntent = new Intent(Intent.ACTION_VIEW, trailerUri);
-                context.startActivity(trailerIntent);
-                Log.v(LOG_TAG, "Started activity to view: " + trailerUri);
+                Intent trailerIntent = new Intent(Intent.ACTION_VIEW, viewHolder.trailerURI);
+                view.getContext().startActivity(trailerIntent);
             }
         });
     }

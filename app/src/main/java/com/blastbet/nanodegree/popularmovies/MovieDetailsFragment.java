@@ -13,6 +13,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -50,6 +52,7 @@ public class MovieDetailsFragment extends Fragment       {
     private long mMovieId = -1;
 
     private TrailerCursorAdapter mTrailerAdapter = null;
+    private ReviewCursorAdapter mReviewAdapter = null;
 
     private Unbinder mUnbinder = null;
 
@@ -59,8 +62,8 @@ public class MovieDetailsFragment extends Fragment       {
     @BindView(R.id.text_movie_detail_run_length) TextView mRuntimeView;
     @BindView(R.id.text_movie_detail_rating) TextView mRatingView;
     @BindView(R.id.image_movie_detail_poster) ImageView mPosterView;
-    @BindView(R.id.trailer_list_view) ListView mTrailerListView;
-    @BindView(R.id.review_list_view) ListView mReviewListView;
+    @BindView(R.id.trailer_list_view) RecyclerView mTrailerListView;
+    @BindView(R.id.review_list_view) RecyclerView mReviewListView;
     @BindView(R.id.button_mark_as_favorite) ToggleButton mFavoriteButton;
 
     private SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyy");
@@ -150,15 +153,15 @@ public class MovieDetailsFragment extends Fragment       {
         View rootView = inflater.inflate(R.layout.fragment_movie_details, container, false);
         mUnbinder = ButterKnife.bind(this, rootView);
 
-        /** Set dummy data if we for some reason did not have the movie details here */
-/*        mTitleView.setText("---");
-        mOverviewView.setText("---");
-        mReleaseDateView.setText("---");
-        mRuntimeView.setText("---");
-        mRatingView.setText("---");
-        mPosterView.setBackgroundColor(Color.GRAY);*/
         mTrailerAdapter = new TrailerCursorAdapter(getContext(), null);
         mTrailerListView.setAdapter(mTrailerAdapter);
+        mTrailerListView.setLayoutManager(
+                new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL,false));
+
+        mReviewAdapter = new ReviewCursorAdapter(getContext(), null);
+        mReviewListView.setAdapter(mReviewAdapter);
+        mReviewListView.setLayoutManager(
+                new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL,false));
         return rootView;
     }
 
@@ -265,7 +268,6 @@ public class MovieDetailsFragment extends Fragment       {
 
                 @Override
                 public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-                    Log.v(LOG_TAG, "Loaded trailers: " + data.getCount());
                     setTrailers(data);
                     Log.e(LOG_TAG, "Trailers loaded");
                 }
@@ -286,6 +288,7 @@ public class MovieDetailsFragment extends Fragment       {
 
                 @Override
                 public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+                    setReviews(data);
                     Log.e(LOG_TAG, "Reviews loaded");
                 }
 
@@ -302,7 +305,10 @@ public class MovieDetailsFragment extends Fragment       {
         mOverviewView.setText(details.getString(COL_MOVIE_OVERVIEW));
         Date releaseDate = new Date(details.getLong(COL_MOVIE_RELEASE_DATE));
         mReleaseDateView.setText(mDateFormat.format(releaseDate));
-        mRuntimeView.setText(details.getString(COL_MOVIE_RUNTIME) + "min");
+        String runTime = details.getString(COL_MOVIE_RUNTIME);
+        if (runTime != null) {
+            mRuntimeView.setText(details.getString(COL_MOVIE_RUNTIME) + "min");
+        }
         mRatingView.setText(details.getString(COL_MOVIE_VOTE_AVERAGE) + " / 10");
 
         if (details.getInt(COL_MOVIE_FAVORITE) == 0) {
@@ -337,7 +343,13 @@ public class MovieDetailsFragment extends Fragment       {
     }
 
     public void setTrailers(Cursor trailers) {
-        mTrailerAdapter.swapCursor(trailers);
+        Log.v(LOG_TAG, "Adding " + trailers.getCount() + " trailers for movie.");
+        mTrailerAdapter.changeCursor(trailers);
+    }
+
+    public void setReviews(Cursor reviews) {
+        Log.v(LOG_TAG, "Adding " + reviews.getCount() + " reviews for movie.");
+        mReviewAdapter.changeCursor(reviews);
     }
 
     private ToggleButton.OnCheckedChangeListener mFavoriteButtonListener =

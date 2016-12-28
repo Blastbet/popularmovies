@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 
 /**
  * Created by ilkka on 12.6.2016.
@@ -70,5 +71,30 @@ public class MovieReview implements Parcelable{
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("Review (" );
+        sb.append(id);
+
+        sb.append(") By: ");
+        sb.append(author);
+
+        sb.append("Review By: ");
+        sb.append(author);
+
+        sb.append(", content:\"");
+        if (content.length() > 30) {
+            sb.append(content.substring(0, 30));
+            sb.append("...\"");
+        } else {
+            sb.append(content);
+            sb.append("\"");
+        }
+
+        return sb.toString();
     }
 }
