@@ -126,6 +126,7 @@ public class MovieContract {
 
         public static final String TABLE_NAME = "review";
 
+        public static final String COLUMN_REVIEW_ID    = "review_id";
         // TMDB id for the movie (foreign key into the movie table)
         public static final String COLUMN_MOVIE_ID    = "movie_id";
 

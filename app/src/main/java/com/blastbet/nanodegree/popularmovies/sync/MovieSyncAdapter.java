@@ -157,6 +157,9 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
             movie = movieCall.execute().body();
             final List<MovieReview> movieReviews = reviewCall.execute().body().getMovieReviews();
             Log.e(LOG_TAG, "Received " + movieReviews.size() + " reviews");
+            for (MovieReview review : movieReviews) {
+                Log.v(LOG_TAG, review.toString());
+            }
             movie.setReviews(movieReviews);
             final List<MovieTrailer> movieTrailers = trailerCall.execute().body().getMovieTrailers();
             Log.e(LOG_TAG, "Received " + movieTrailers.size() + " trailers");
@@ -217,6 +220,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
     private void addReviewsToContentValuesVector(long movieId, List<MovieReview> reviews, Vector<ContentValues> cVector) {
         for (MovieReview review : reviews) {
             final ContentValues cValues = new ContentValues();
+            cValues.put(MovieContract.ReviewEntry.COLUMN_REVIEW_ID, review.getId());
             cValues.put(MovieContract.ReviewEntry.COLUMN_MOVIE_ID, movieId);
             cValues.put(MovieContract.ReviewEntry.COLUMN_AUTHOR, review.getAuthor());
             cValues.put(MovieContract.ReviewEntry.COLUMN_CONTENT, review.getContent());
