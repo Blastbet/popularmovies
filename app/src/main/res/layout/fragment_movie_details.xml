@@ -20,7 +20,7 @@
             android:id="@+id/text_movie_detail_title"
             android:gravity="center_vertical"
             android:paddingLeft="@dimen/activity_horizontal_margin"
-            android:background="@color/material_deep_teal_500"
+            android:background="@color/colorPrimaryDark"
             android:textColor="@android:color/white"
             android:textStyle="bold"
             android:paddingTop="@dimen/activity_vertical_margin"
@@ -58,7 +58,7 @@
                     android:layout_height="wrap_content"
                     android:paddingBottom="5dp"
                     android:id="@+id/text_movie_detail_production_year"
-                    android:text="2000"
+                    android:text=""
                     android:textIsSelectable="true"
                     android:textSize="32sp" />
                 <TextView
@@ -67,17 +67,17 @@
                     android:paddingBottom="5dp"
                     android:paddingTop="5dp"
                     android:id="@+id/text_movie_detail_run_length"
-                    android:text="100min"
+                    android:text=""
                     android:textStyle="bold|italic"
                     android:textIsSelectable="false"
-                    android:textSize="24dp" />
+                    android:textSize="24sp" />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingBottom="5dp"
                     android:paddingTop="5dp"
                     android:id="@+id/text_movie_detail_rating"
-                    android:text="9.9/10\n(1023000 votes)"
+                    android:text=""
                     android:textSize="18sp" />
                 <ToggleButton
                     android:layout_width="@dimen/button_size"
@@ -93,7 +93,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/text_movie_detail_description"
             android:textSize="16sp"
-            android:text="blaaidblaa afepwjof awfpok powefjewf pok weofpk wpofek wpefok pwoekf wfew wef w ewfwefwfef wfw wfef wef"
+            android:text=""
             android:paddingLeft="@dimen/activity_horizontal_margin"
             android:paddingRight="@dimen/activity_horizontal_margin"
             android:layout_marginBottom="@dimen/activity_vertical_margin" />
@@ -108,7 +108,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Trailers:"
+            android:text="@string/trailers_title"
             android:layout_gravity="left"
             android:paddingLeft="@dimen/activity_horizontal_margin"
             android:paddingRight="@dimen/activity_horizontal_margin"
@@ -131,8 +131,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Reviews:"
-            android:layout_gravity="left"
+            android:text="@string/reviews_title"
+            android:layout_gravity="start"
             android:paddingLeft="@dimen/activity_horizontal_margin"
             android:paddingRight="@dimen/activity_horizontal_margin"
             android:paddingTop="10dp" />
