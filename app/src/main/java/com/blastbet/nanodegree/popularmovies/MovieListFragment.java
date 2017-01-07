@@ -2,9 +2,9 @@ package com.blastbet.nanodegree.popularmovies;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
-import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -21,7 +21,6 @@ import android.view.ViewGroup;
 
 import com.blastbet.nanodegree.popularmovies.data.MovieContract;
 import com.blastbet.nanodegree.popularmovies.sync.MovieSyncAdapter;
-import com.blastbet.nanodegree.popularmovies.tmdb.Movie;
 
 public class MovieListFragment
         extends Fragment
@@ -75,8 +74,12 @@ public class MovieListFragment
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_movie_list, container, false);
         RecyclerView movieGrid = (RecyclerView) rootView.findViewById(R.id.grid_movies);
-        //movieGrid.setHasFixedSize(true);
-        movieGrid.setLayoutManager(new PosterGridLayoutManager(getContext(), 1));
+        final int orientation = getActivity().getResources().getConfiguration().orientation;
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            movieGrid.setLayoutManager(new GridLayoutManager(getContext(), 3));
+        } else {
+            movieGrid.setLayoutManager(new GridLayoutManager(getContext(), 2));
+        }
         mAdapter = new MovieCursorAdapter(getContext(), null, R.layout.movielist_item, new MovieCursorAdapter.OnMovieClickedListener() {
             @Override
             public void onClick(long movieId) {
