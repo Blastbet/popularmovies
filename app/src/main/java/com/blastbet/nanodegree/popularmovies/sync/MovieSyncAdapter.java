@@ -124,10 +124,14 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                     return;
                 }
                 final MovieList movies = fetchMovies(sortKey);
-                updateMoviesList(movies, sortKey);
-                cleanUnreferencedMovies();
-                cleanUnreferencedReviews();
-                cleanUnreferencedTrailers();
+                if (movies != null) {
+                    updateMoviesList(movies, sortKey);
+                    cleanUnreferencedMovies();
+                    cleanUnreferencedReviews();
+                    cleanUnreferencedTrailers();
+                } else {
+                    Log.w(LOG_TAG, "Failed to fetch movie list with sorting: " + sortKey + "!");
+                }
                 break;
             case MOVIE_SYNC_TYPE_GET_DETAILS:
                 final Movie movie = fetchMovieDetails(movieId);
@@ -179,8 +183,6 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        List<Movie> movies = movieList.getMovieList();
 
         return movieList;
     }
