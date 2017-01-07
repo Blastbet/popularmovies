@@ -141,10 +141,7 @@ public class MovieCursorAdapter extends CursorRecyclerViewAdapter<MovieCursorAda
         viewHolder.mMovieId = cursor.getLong(MovieListFragment.COL_MOVIE_MOVIE_ID);
         viewHolder.mImageView.setVisibility(View.VISIBLE);
         viewHolder.mImageView.setBackgroundColor(Color.BLUE);
-/*        holder.mLoadView.setVisibility(View.GONE);
-        holder.mImageView.setVisibility(View.GONE);
-        holder.mLoadView.setVisibility(View.VISIBLE);
-*/
+
         final ImageView iv = viewHolder.mImageView;
         final Target t = viewHolder.mTarget;
 
